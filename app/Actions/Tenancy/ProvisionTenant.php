@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Actions\Tenancy;
 
 use App\Enums\ProvisioningStatus;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Stancl\Tenancy\Database\DatabaseManager as TenancyDatabaseManager;
+use Stancl\Tenancy\Jobs\CreateDatabase;
 use Throwable;
 
 class ProvisionTenant
@@ -46,6 +49,23 @@ class ProvisionTenant
         });
 
         try {
+            $database=$this->recorder->start($tenant->getTenantKey(),'create_database');
+            try {
+                (new CreateDatabase($tenant))->handle(app(TenancyDatabaseManager::class));
+
+                $tenant->forceFill([
+                    'provisioning_status'=>ProvisioningStatus::DatabaseCreated->value,
+                ])->save();
+
+                Business::query()->where('tenant_id',$tenant->getTenantKey())
+                    ->update(['provisioning_status'=>ProvisioningStatus::DatabaseCreated->value]);
+
+                $this->recorder->success($database);
+            } catch (Throwable $e) {
+                $this->recorder->failure($database,$e);
+                throw $e;
+            }
+
             $migration=$this->recorder->start($tenant->getTenantKey(),'tenant_migration');
             try {
                 Artisan::call('tenants:migrate',['--tenants'=>[$tenant->getTenantKey()]]);
