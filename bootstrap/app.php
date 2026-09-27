@@ -5,6 +5,8 @@ use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
@@ -31,5 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
             prepend: PreventAccessFromCentralDomains::class,
         );
     })
-    ->withExceptions(function (Exceptions $exceptions): void {})
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $exception, Request $request) {
+            return response('Not Found',404);
+        });
+    })
     ->create();
