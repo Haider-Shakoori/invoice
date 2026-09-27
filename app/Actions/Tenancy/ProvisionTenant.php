@@ -4,6 +4,7 @@ namespace App\Actions\Tenancy;
 use App\Enums\ProvisioningStatus;
 use App\Models\Central\Business;
 use App\Models\Central\Tenant;
+use App\Models\Tenant\Role;
 use App\Models\Tenant\User;
 use App\Services\Tenancy\ProvisioningRecorder;
 use Database\Seeders\TenantBaselineSeeder;
@@ -59,14 +60,18 @@ class ProvisionTenant
                 $tenant->run(function () use ($data): void {
                     app(TenantBaselineSeeder::class)->run();
 
-                    User::query()->create([
+                    $owner=User::query()->create([
                         'name'=>$data['owner_name'],
                         'email'=>$data['owner_email'],
                         'password'=>Hash::make($data['password']),
                         'role'=>'owner',
                         'is_active'=>true,
                     ]);
+
+                    $ownerRole=Role::query()->where('key','owner')->firstOrFail();
+                    $owner->roles()->sync([$ownerRole->id]);
                 });
+
                 $this->recorder->success($seed);
             } catch (Throwable $e) {
                 $this->recorder->failure($seed,$e);
@@ -78,6 +83,7 @@ class ProvisionTenant
                 $tenant->domains()->create([
                     'domain'=>$slug.'.'.config('tenancy.tenant_base_domain'),
                 ]);
+
                 $this->recorder->success($domain);
             } catch (Throwable $e) {
                 $this->recorder->failure($domain,$e);
