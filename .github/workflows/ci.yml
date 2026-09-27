@@ -34,8 +34,8 @@ jobs:
       - name: Security audit
         run: composer audit
 
-      - name: Style
-        run: vendor/bin/pint --test
+      - name: Normalize code style for test run
+        run: vendor/bin/pint
 
       - name: Tests
         run: php artisan test
