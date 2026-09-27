@@ -21,6 +21,8 @@ class LoginController extends Controller
             'password'=>['required','string'],
         ]);
 
+        $credentials['is_active']=true;
+
         if (! Auth::guard('web')->attempt($credentials,$request->boolean('remember'))) {
             return back()->withErrors(['email'=>__('auth.failed')])->onlyInput('email');
         }
