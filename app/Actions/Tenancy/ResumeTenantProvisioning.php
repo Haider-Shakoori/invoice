@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Actions\Tenancy;
 
 use App\Enums\ProvisioningStatus;
@@ -11,6 +12,8 @@ use Database\Seeders\TenantBaselineSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
+use Stancl\Tenancy\Database\DatabaseManager as TenancyDatabaseManager;
+use Stancl\Tenancy\Jobs\CreateDatabase;
 use Throwable;
 
 class ResumeTenantProvisioning
@@ -33,6 +36,22 @@ class ResumeTenantProvisioning
             ->firstOrFail();
 
         try {
+            $database=$this->recorder->start($tenant->getTenantKey(),'retry_database');
+
+            try {
+                $manager=$tenant->database()->manager();
+                $databaseName=$tenant->database()->getName();
+
+                if (! $manager->databaseExists($databaseName)) {
+                    (new CreateDatabase($tenant))->handle(app(TenancyDatabaseManager::class));
+                }
+
+                $this->recorder->success($database);
+            } catch (Throwable $e) {
+                $this->recorder->failure($database,$e);
+                throw $e;
+            }
+
             $migration=$this->recorder->start($tenant->getTenantKey(),'retry_tenant_migration');
             try {
                 Artisan::call('tenants:migrate',['--tenants'=>[$tenant->getTenantKey()]]);
