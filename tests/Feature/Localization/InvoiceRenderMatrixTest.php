@@ -4,6 +4,7 @@ namespace Tests\Feature\Localization;
 
 use App\Models\Tenant\BusinessProfile;
 use App\Models\Tenant\Customer;
+use App\Models\Tenant\InvoiceDraft;
 use App\Models\Tenant\InvoiceTemplate;
 use App\Models\Tenant\Role;
 use App\Models\Tenant\User;
@@ -88,7 +89,7 @@ class InvoiceRenderMatrixTest extends TestCase
     }
 
     /**
-     * @return array{0:\App\Models\Tenant\InvoiceDraft,1:User}
+     * @return array{0:InvoiceDraft,1:User}
      */
     private function fixture(): array
     {
