@@ -59,7 +59,7 @@ class InvoiceController extends Controller
 
     public function show(InvoiceDraft $invoice): View
     {
-        $invoice->load(['customer', 'template', 'lines', 'versions.createdBy', 'activity.user']);
+        $invoice->load(['customer', 'template', 'lines', 'versions.createdBy', 'activity.user', 'exports.template']);
 
         return view('tenant.invoices.show', compact('invoice'));
     }
@@ -109,10 +109,15 @@ class InvoiceController extends Controller
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'invoice_template_id' => ['nullable', 'integer', 'exists:invoice_templates,id'],
             'locale' => ['required', Rule::in(config('invoice.locales'))],
+            'currency' => ['required', Rule::in(['AFN', 'USD'])],
             'issue_date' => ['required', 'date'],
             'due_date' => ['nullable', 'date', 'after_or_equal:issue_date'],
             'discount_type' => ['nullable', 'in:percent,fixed'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
+            'additional_charge_label' => ['nullable', 'string', 'max:100'],
+            'additional_charge_amount' => ['nullable', 'numeric', 'min:0'],
+            'tax_label' => ['nullable', 'string', 'max:100'],
+            'tax_rate' => ['nullable', 'numeric', 'between:0,100'],
             'notes' => ['nullable', 'string', 'max:5000'],
             'terms' => ['nullable', 'string', 'max:5000'],
             'lines' => [$linesRequired ? 'required' : 'sometimes', 'array', 'min:1'],
