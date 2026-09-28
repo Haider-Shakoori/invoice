@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Central;
 use App\Http\Controllers\Controller;
 use App\Models\Central\SellerCommission;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CommissionController extends Controller
 {
