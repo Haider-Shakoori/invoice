@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureOnboardingCompleted;
 use App\Http\Middleware\EnsureSubscriptionAccess;
 use App\Http\Middleware\EnsureTenantPermission;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant.permission' => EnsureTenantPermission::class,
             'subscription.access' => EnsureSubscriptionAccess::class,
+            'onboarding.complete' => EnsureOnboardingCompleted::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => '/login');
