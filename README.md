@@ -23,6 +23,7 @@ The tenant application does **not** include stock, inventory, POS, accounting, p
 - Renewal: 3,000 AFN/year
 - Manual payment recording: cash, bank transfer, hawala
 - Central platform invoices/receipts are separate from tenant-created invoice drafts
+- Expired subscriptions are locked non-destructively; tenant data is retained
 
 ## Architecture
 
@@ -53,6 +54,4 @@ See [docs/INVOICE_TEMPLATES.md](docs/INVOICE_TEMPLATES.md).
 4. Localization/PDF: English/Dari/Pashto, RTL-safe rendering, 20 templates, export.
 5. Release quality: security/isolation tests, PDF matrix, backups, performance, deployment.
 
-## Current branch
-
-`feat/phase-1-foundation` establishes the architecture and implementation contract before application scaffolding and migrations are added.
+Phase 1 is complete. Phase 2 implementation is documented in [docs/PHASE2_STATUS.md](docs/PHASE2_STATUS.md).

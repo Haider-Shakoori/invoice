@@ -1,6 +1,8 @@
 # Implementation Roadmap
 
 ## Phase 1 — Foundation
+Status: complete and merged.
+
 - Laravel application scaffold
 - central + tenant migration separation
 - stancl/tenancy configuration
@@ -13,16 +15,22 @@
 - schema/isolation tests
 
 ## Phase 2 — Commercial SaaS
+Status: implementation complete on the Phase 2 feature branch; awaiting CI/merge.
+
 - signup + requested subdomain
 - configurable 7-day trial
 - 5,000 AFN first activation split into setup + first year
 - 3,000 AFN annual renewal
 - manual cash/bank/hawala payments
-- platform invoice/receipt generation
+- platform invoice/receipt records
 - sellers/resellers and commission ledger
-- expiry/renewal workflow
+- tenant activation requests + central review workflow
+- expiry/renewal synchronization
 - non-destructive lock/retrieval policy
 - commercial audit log
+- automated lifecycle tests
+
+See [PHASE2_STATUS.md](PHASE2_STATUS.md).
 
 ## Phase 3 — Tenant Workspace
 - mandatory resumable company onboarding

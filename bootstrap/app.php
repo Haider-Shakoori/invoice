@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureSubscriptionAccess;
 use App\Http\Middleware\EnsureTenantPermission;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
@@ -19,14 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'tenant.permission' => EnsureTenantPermission::class,
+            'subscription.access' => EnsureSubscriptionAccess::class,
         ]);
 
-        // Both central and tenant login endpoints live at /login on their own host.
-        // Returning a relative path keeps authentication redirects on the current domain.
         $middleware->redirectGuestsTo(fn () => '/login');
 
-        // Tenancy identification must run before authentication so unknown hosts
-        // fail closed instead of being redirected by Laravel's auth middleware.
         $middleware->prependToPriorityList(
             before: AuthenticatesRequests::class,
             prepend: InitializeTenancyByDomain::class,

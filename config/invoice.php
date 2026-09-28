@@ -7,6 +7,10 @@ return [
         'first_year_afn' => (int) env('INVOICE_FIRST_YEAR_PRICE_AFN', 3000),
         'renewal_afn' => (int) env('INVOICE_RENEWAL_PRICE_AFN', 3000),
     ],
+    'commercial' => [
+        'payment_due_days' => (int) env('INVOICE_PAYMENT_DUE_DAYS', 7),
+        'grace_days' => (int) env('INVOICE_GRACE_DAYS', 0),
+    ],
     'locales' => ['en', 'fa', 'ps'],
     'default_locale' => env('APP_LOCALE', 'en'),
     'reserved_subdomains' => [
