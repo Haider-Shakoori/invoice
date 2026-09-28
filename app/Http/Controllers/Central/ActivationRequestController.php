@@ -7,9 +7,9 @@ use App\Models\Central\ActivationRequest;
 use App\Services\Commercial\IssueActivationInvoice;
 use App\Services\Commercial\SubscriptionAuditLogger;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class ActivationRequestController extends Controller
 {
@@ -37,7 +37,7 @@ class ActivationRequestController extends Controller
 
         $subscription = $activationRequest->business()->firstOrFail()->subscription()->firstOrFail();
 
-        if ($activationRequest->seller_id && !$subscription->seller_id) {
+        if ($activationRequest->seller_id && ! $subscription->seller_id) {
             $subscription->update(['seller_id' => $activationRequest->seller_id]);
         }
 
