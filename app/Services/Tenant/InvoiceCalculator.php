@@ -8,10 +8,15 @@ class InvoiceCalculator
 {
     /**
      * @param  array<int, array<string, mixed>>  $lines
-     * @return array{subtotal:string, discount_amount:string, total:string, lines:array<int, array<string, mixed>>}
+     * @return array{subtotal:string, discount_amount:string, additional_charge_amount:string, tax_amount:string, total:string, lines:array<int, array<string, mixed>>}
      */
-    public function calculate(array $lines, ?string $discountType = null, string|int|float|null $discountValue = null): array
-    {
+    public function calculate(
+        array $lines,
+        ?string $discountType = null,
+        string|int|float|null $discountValue = null,
+        string|int|float|null $additionalChargeAmount = null,
+        string|int|float|null $taxRate = null,
+    ): array {
         if ($lines === []) {
             throw new InvalidArgumentException('An invoice requires at least one line.');
         }
@@ -80,10 +85,28 @@ class InvoiceCalculator
             throw new InvalidArgumentException('Invoice discount type must be percent, fixed, or null.');
         }
 
+        $additionalMinor = $this->parseDecimal($additionalChargeAmount ?? 0, 2, 'additional_charge_amount');
+
+        if ($additionalMinor < 0) {
+            throw new InvalidArgumentException('Additional charge cannot be negative.');
+        }
+
+        $taxScaled = $this->parseDecimal($taxRate ?? 0, 4, 'tax_rate');
+
+        if ($taxScaled < 0 || $taxScaled > 1_000_000) {
+            throw new InvalidArgumentException('Tax rate must be between 0 and 100.');
+        }
+
+        $taxBaseMinor = ($subtotalMinor - $discountMinor) + $additionalMinor;
+        $taxMinor = intdiv(($taxBaseMinor * $taxScaled) + 500_000, 1_000_000);
+        $totalMinor = $taxBaseMinor + $taxMinor;
+
         return [
             'subtotal' => $this->formatDecimal($subtotalMinor, 2),
             'discount_amount' => $this->formatDecimal($discountMinor, 2),
-            'total' => $this->formatDecimal($subtotalMinor - $discountMinor, 2),
+            'additional_charge_amount' => $this->formatDecimal($additionalMinor, 2),
+            'tax_amount' => $this->formatDecimal($taxMinor, 2),
+            'total' => $this->formatDecimal($totalMinor, 2),
             'lines' => $calculatedLines,
         ];
     }

@@ -37,6 +37,7 @@ The tenant application does **not** include stock, inventory, POS, accounting, p
 - Blade-oriented low-bandwidth tenant workspace
 - domain-scoped tenant sessions
 - tenant-isolated media/PDF storage
+- Chromium/Chrome PDF renderer for selectable multilingual text
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -46,18 +47,30 @@ After company onboarding, users land directly on **Invoices** rather than an ana
 
 See [docs/PHASE3_STATUS.md](docs/PHASE3_STATUS.md).
 
-## Invoice templates
+## Localization and PDF templates
 
-The system ships with 20 visual designs based on the supplied template preview PDF. Template selection is a presentation choice only; it never changes invoice data, totals, numbering, or client snapshots.
+The system ships with 20 visual designs based on the supplied template preview PDF. The tenant UI supports English, Dari and Pashto, with mirrored RTL composition for Dari/Pashto. App language and invoice export language are independent.
 
-See [docs/INVOICE_TEMPLATES.md](docs/INVOICE_TEMPLATES.md).
+Invoice preview/export supports:
+- all 20 built-in A4 templates
+- English, Dari and Pashto
+- AFN and USD
+- optional invoice/line discounts
+- optional tax and additional charges
+- tenant-private logo, signature and stamp assets
+- private PDF storage, export history and authorized re-download
+- immutable export metadata including invoice version, template, locale, SHA-256 and file size
+
+Changing a template or export locale never changes stored invoice numbering or totals.
+
+See [docs/INVOICE_TEMPLATES.md](docs/INVOICE_TEMPLATES.md) and [docs/PHASE4_STATUS.md](docs/PHASE4_STATUS.md).
 
 ## Delivery phases
 
 1. Foundation: tenancy, auth, provisioning, central/tenant schemas, operator roles.
 2. Commercial SaaS: trial, activation/renewal, manual payments, central receipts, sellers/commissions.
 3. Tenant workspace: onboarding, clients, invoice editor, calculations, numbering, snapshots, staff and version history.
-4. Localization/PDF: English/Dari/Pashto, RTL-safe rendering, 20 templates, export.
-5. Release quality: security/isolation tests, PDF matrix, backups, performance, deployment.
+4. Localization/PDF: English/Dari/Pashto, RTL-safe rendering, 20 templates, preview/export.
+5. Release quality: security/isolation review, visual PDF stress matrix, backups, performance, deployment.
 
-Phases 1, 2 and 3 are complete and merged. Phase 4 — Localization & PDF — is next.
+Phases 1–4 are complete. Phase 5 — Release Quality & Production Readiness — is next.

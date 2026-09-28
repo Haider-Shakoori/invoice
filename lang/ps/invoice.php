@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'invoice' => 'بل',
+    'professional_invoice' => 'رسمي بل',
+    'bill_to' => 'بل د',
+    'invoice_details' => 'د بل معلومات',
+    'number' => 'شمېره',
+    'date' => 'نېټه',
+    'due_date' => 'د ورکړې وروستۍ نېټه',
+    'currency' => 'اسعار',
+    'description' => 'تشریح',
+    'qty' => 'مقدار',
+    'unit' => 'واحد',
+    'unit_price' => 'د واحد بیه',
+    'discount' => 'تخفیف',
+    'amount' => 'مبلغ',
+    'notes' => 'یادښتونه',
+    'terms' => 'شرایط',
+    'subtotal' => 'فرعي مجموعه',
+    'additional_charge' => 'اضافي لګښت',
+    'tax' => 'مالیه',
+    'total' => 'ټولټال',
+    'authorized_signature' => 'مجاز لاسلیک / مهر',
+    'page' => 'پاڼه',
+    'of' => 'له',
+];

@@ -30,6 +30,11 @@ class InvoiceDraft extends Model
         'discount_type',
         'discount_value',
         'discount_amount',
+        'tax_label',
+        'tax_rate',
+        'tax_amount',
+        'additional_charge_label',
+        'additional_charge_amount',
         'total',
         'notes',
         'terms',
@@ -46,6 +51,9 @@ class InvoiceDraft extends Model
             'subtotal' => 'decimal:2',
             'discount_value' => 'decimal:4',
             'discount_amount' => 'decimal:2',
+            'tax_rate' => 'decimal:4',
+            'tax_amount' => 'decimal:2',
+            'additional_charge_amount' => 'decimal:2',
             'total' => 'decimal:2',
             'version_no' => 'integer',
         ];
@@ -89,5 +97,10 @@ class InvoiceDraft extends Model
     public function activity(): HasMany
     {
         return $this->hasMany(DocumentActivity::class)->orderByDesc('created_at');
+    }
+
+    public function exports(): HasMany
+    {
+        return $this->hasMany(DocumentExport::class)->orderByDesc('created_at');
     }
 }

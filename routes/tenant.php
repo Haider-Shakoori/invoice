@@ -4,11 +4,16 @@ use App\Http\Controllers\Tenant\ActivationRequestController;
 use App\Http\Controllers\Tenant\Auth\LoginController as TenantLoginController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\InvoiceController;
+use App\Http\Controllers\Tenant\InvoiceDocumentController;
+use App\Http\Controllers\Tenant\LocaleController;
 use App\Http\Controllers\Tenant\OnboardingController;
 use App\Http\Controllers\Tenant\StaffController;
 use App\Http\Controllers\Tenant\SubscriptionStatusController;
+use App\Http\Controllers\Tenant\TemplateGalleryController;
 use App\Http\Controllers\Tenant\WorkspaceController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/locale', [LocaleController::class, 'update'])->name('tenant.locale.update');
 
 Route::middleware('guest:web')->group(function (): void {
     Route::get('/login', [TenantLoginController::class, 'create'])->name('tenant.login');
@@ -22,8 +27,12 @@ Route::middleware('auth:web')->group(function (): void {
     Route::middleware('subscription.access')->group(function (): void {
         Route::get('/', WorkspaceController::class)->name('tenant.home');
 
-        Route::get('/onboarding', [OnboardingController::class, 'show'])->name('tenant.onboarding.show');
-        Route::put('/onboarding', [OnboardingController::class, 'update'])->name('tenant.onboarding.update');
+        Route::get('/onboarding', [OnboardingController::class, 'show'])
+            ->middleware('tenant.permission:settings.manage')
+            ->name('tenant.onboarding.show');
+        Route::put('/onboarding', [OnboardingController::class, 'update'])
+            ->middleware('tenant.permission:settings.manage')
+            ->name('tenant.onboarding.update');
 
         Route::middleware('onboarding.complete')->group(function (): void {
             Route::get('/clients', [CustomerController::class, 'index'])
@@ -39,6 +48,10 @@ Route::middleware('auth:web')->group(function (): void {
                 ->middleware('tenant.permission:clients.manage')
                 ->name('tenant.customers.destroy');
 
+            Route::get('/templates', [TemplateGalleryController::class, 'index'])
+                ->middleware('tenant.permission:drafts.view')
+                ->name('tenant.templates.index');
+
             Route::get('/invoices', [InvoiceController::class, 'index'])
                 ->middleware('tenant.permission:drafts.view')
                 ->name('tenant.invoices.index');
@@ -48,6 +61,12 @@ Route::middleware('auth:web')->group(function (): void {
             Route::post('/invoices', [InvoiceController::class, 'store'])
                 ->middleware('tenant.permission:drafts.manage')
                 ->name('tenant.invoices.store');
+            Route::get('/invoices/{invoice}/preview', [InvoiceDocumentController::class, 'preview'])
+                ->middleware('tenant.permission:drafts.view')
+                ->name('tenant.invoices.preview');
+            Route::post('/invoices/{invoice}/export', [InvoiceDocumentController::class, 'export'])
+                ->middleware('tenant.permission:pdf.export')
+                ->name('tenant.invoices.export');
             Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
                 ->middleware('tenant.permission:drafts.view')
                 ->name('tenant.invoices.show');
@@ -63,6 +82,10 @@ Route::middleware('auth:web')->group(function (): void {
             Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])
                 ->middleware('tenant.permission:drafts.delete')
                 ->name('tenant.invoices.destroy');
+
+            Route::get('/exports/{documentExport}/download', [InvoiceDocumentController::class, 'download'])
+                ->middleware('tenant.permission:pdf.export')
+                ->name('tenant.exports.download');
 
             Route::get('/staff', [StaffController::class, 'index'])
                 ->middleware('tenant.permission:staff.manage')
