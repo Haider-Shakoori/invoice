@@ -118,6 +118,29 @@ class TenantDatabaseIsolationMysqlTest extends TestCase
         $this->assertSame([], $queueBootstrapper->getPayload('sync'));
     }
 
+    public function test_central_operator_session_does_not_authorize_tenant_routes(): void
+    {
+        [$tenantA] = $this->provisionPair();
+
+        $admin = AdminUser::query()->create([
+            'name' => 'Central Operator',
+            'email' => 'central-boundary@example.test',
+            'password' => Hash::make('StrongPass123'),
+            'role' => 'operator',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($admin, 'central');
+
+        $domain = $tenantA->domains()->firstOrFail()->domain;
+
+        $response = $this->get("http://{$domain}/");
+
+        $response->assertRedirect('/login');
+        $this->assertGuest('web');
+        $this->assertAuthenticatedAs($admin, 'central');
+    }
+
     public function test_failed_provisioning_can_resume_without_destroying_tenant_data(): void
     {
         [$tenantA] = $this->provisionPair();
