@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>@yield('title', 'Invoice Drafts') · BusinessOS</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f6f8fc;line-height:1.5;--ink:#111827;--muted:#64748b;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--nav:#0f172a}*{box-sizing:border-box}body{margin:0;background:#f6f8fc;color:var(--ink)}a{color:inherit}.app{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr)}.sidebar{background:linear-gradient(180deg,#0f172a,#111827);color:#fff;padding:26px 18px;position:sticky;top:0;height:100vh}.logo{display:flex;align-items:center;gap:11px;font-size:19px;font-weight:850;margin:0 8px 30px}.logo-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:#2563eb;font-size:18px}.logo small{display:block;color:#94a3b8;font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#64748b;font-weight:800;margin:22px 11px 8px}.nav a{display:flex;align-items:center;gap:10px;color:#cbd5e1;text-decoration:none;padding:10px 12px;border-radius:10px;margin:3px 0;font-size:14px;font-weight:650}.nav a:hover,.nav a.active{background:#1e293b;color:#fff}.nav .dot{width:7px;height:7px;border-radius:50%;background:#475569}.nav a.active .dot{background:#60a5fa}.sidebar-foot{position:absolute;bottom:22px;left:18px;right:18px;padding:14px;border-top:1px solid #1e293b;color:#94a3b8;font-size:12px}.page{min-width:0}.topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}.topbar strong{font-size:14px}.topbar .user{color:var(--muted);font-size:13px}.content{padding:30px;max-width:1500px;margin:auto}.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:24px}.page-head h1{font-size:28px;letter-spacing:-.03em;margin:0}.page-head p{color:var(--muted);margin:5px 0 0}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(15,23,42,.035);margin-bottom:18px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:20px}.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px}.stat span{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-bottom:7px}.stat strong{font-size:25px;letter-spacing:-.03em}.stat em{display:block;font-size:11px;color:#94a3b8;font-style:normal;margin-top:3px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:10px;padding:10px 14px;background:var(--brand);color:#fff;text-decoration:none;font:inherit;font-size:13px;font-weight:750;cursor:pointer}.btn:hover{background:var(--brand2)}.btn.secondary{background:#eef2f7;color:#334155}.btn.danger{background:#b91c1c}.btn.small{padding:7px 10px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:720px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #edf0f4;vertical-align:middle}th{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}td{font-size:13px}.badge{display:inline-flex;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:11px;font-weight:800}.badge.ok{background:#dcfce7;color:#166534}.badge.warn{background:#fef3c7;color:#92400e}.badge.bad{background:#fee2e2;color:#991b1b}.muted{color:var(--muted);font-size:12px}.right{text-align:right}.auth-shell{min-height:100vh;display:grid;grid-template-columns:minmax(360px,46%) 1fr}.auth-panel{background:#fff;display:flex;align-items:center;justify-content:center;padding:36px}.auth-card{width:min(440px,100%)}.auth-brand{display:flex;align-items:center;gap:10px;font-weight:850;margin-bottom:36px}.auth-card h1{font-size:30px;letter-spacing:-.035em;margin:0 0 8px}.auth-card>p{color:var(--muted);margin:0 0 28px}.auth-art{background:linear-gradient(145deg,#0f172a 0%,#172554 52%,#1d4ed8 100%);color:#fff;padding:9vw 7vw;display:flex;flex-direction:column;justify-content:center}.auth-art h2{font-size:42px;line-height:1.08;letter-spacing:-.04em;max-width:620px;margin:0 0 18px}.auth-art p{color:#bfdbfe;max-width:560px;font-size:17px}.field{margin-bottom:15px}.field label{display:block;font-size:12px;font-weight:750;color:#475569;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;color:#111827;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px #dbeafe}.grid{display:grid;gap:14px}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.alert{border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:10px;padding:11px 13px;font-size:13px;margin:12px 0}.auth-links{font-size:13px;color:var(--muted);margin-top:18px}.auth-links a{color:#2563eb;font-weight:700;text-decoration:none}.mobile-brand{display:none}
+@media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:static;padding:13px 16px}.sidebar .logo,.nav-label,.sidebar-foot{display:none}.nav{display:flex;gap:5px;overflow-x:auto}.nav a{white-space:nowrap}.mobile-brand{display:block;font-weight:850}.topbar{padding:0 18px}.content{padding:20px}.stats{grid-template-columns:repeat(2,1fr)}.auth-shell{grid-template-columns:1fr}.auth-art{display:none}}@media(max-width:600px){.content{padding:16px}.stats,.grid-2{grid-template-columns:1fr}.page-head{flex-direction:column}.page-head h1{font-size:24px}.topbar{height:60px}.topbar .user{display:none}.auth-panel{padding:24px 18px}.card{padding:15px}}
+</style>
+@stack('head')
+</head>
+<body>
+@if(View::hasSection('auth'))
+@yield('auth')
+@else
+<div class="app">
+<aside class="sidebar">
+<div class="logo"><span class="logo-mark">I</span><span>Invoice Drafts<small>by BusinessOS</small></span></div>
+<div class="nav-label">Platform</div>
+<nav class="nav">
+<a class="{{ request()->routeIs('central.admin','central.commercial')?'active':'' }}" href="{{ route('central.commercial') }}"><span class="dot"></span>Overview</a>
+<a class="{{ request()->routeIs('central.activation-requests.*')?'active':'' }}" href="{{ route('central.activation-requests.index') }}"><span class="dot"></span>Activation requests</a>
+<a class="{{ request()->routeIs('central.commissions.*')?'active':'' }}" href="{{ route('central.commissions.index') }}"><span class="dot"></span>Commissions</a>
+<a href="{{ route('central.register') }}"><span class="dot"></span>New business</a>
+</nav>
+<div class="sidebar-foot">Central SaaS administration<br>Invoice Drafts · BusinessOS</div>
+</aside>
+<section class="page">
+<header class="topbar"><span class="mobile-brand">Invoice Drafts</span><strong>@yield('topbar','Platform administration')</strong><div class="actions"><span class="user">{{ Auth::guard('central')->user()?->name }}</span><form method="post" action="{{ route('central.logout') }}">@csrf<button class="btn secondary small">Sign out</button></form></div></header>
+<main class="content">
+<div class="page-head"><div><h1>@yield('heading','Overview')</h1><p>@yield('subheading')</p></div><div class="actions">@yield('actions')</div></div>
+@if(session('status'))<div class="card">{{ session('status') }}</div>@endif
+@if($errors->any())<div class="alert"><strong>Please correct the following:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+@yield('content')
+</main>
+</section>
+</div>
+@endif
+</body></html>

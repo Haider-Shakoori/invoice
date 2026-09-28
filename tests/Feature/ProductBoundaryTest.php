@@ -9,7 +9,10 @@ class ProductBoundaryTest extends TestCase
     public function test_central_domain_returns_central_scope(): void
     {
         config()->set('tenancy.central_domains', ['invoice.test']);
-        $this->get('http://invoice.test/')->assertOk()->assertJsonPath('scope', 'central');
+        $this->get('http://invoice.test/')
+            ->assertOk()
+            ->assertSee('Invoice Drafts')
+            ->assertSee('Start 7-day free trial');
     }
 
     public function test_invoice_pricing_defaults_match_product_contract(): void

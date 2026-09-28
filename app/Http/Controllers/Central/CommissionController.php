@@ -4,22 +4,23 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Central\SellerCommission;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CommissionController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
-        return response()->json(
-            SellerCommission::query()
+        return view('central.commissions', [
+            'commissions' => SellerCommission::query()
                 ->with(['seller', 'business', 'payment'])
                 ->latest('earned_at')
                 ->paginate(50),
-        );
+        ]);
     }
 
-    public function markPaid(Request $request, SellerCommission $sellerCommission): JsonResponse
+    public function markPaid(Request $request, SellerCommission $sellerCommission): RedirectResponse
     {
         $data = $request->validate([
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -34,6 +35,6 @@ class CommissionController extends Controller
             'notes' => $data['notes'] ?? $sellerCommission->notes,
         ]);
 
-        return response()->json($sellerCommission->fresh());
+        return back()->with('status', 'Commission marked as paid.');
     }
 }

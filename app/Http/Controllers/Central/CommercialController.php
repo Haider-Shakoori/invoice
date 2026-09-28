@@ -7,13 +7,13 @@ use App\Models\Central\ActivationRequest;
 use App\Models\Central\Business;
 use App\Models\Central\PlatformInvoice;
 use App\Models\Central\PlatformPayment;
-use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 
 class CommercialController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
-        return response()->json([
+        return view('central.dashboard', [
             'pricing' => [
                 'currency' => 'AFN',
                 'trial_days' => (int) config('invoice.trial_days', 7),
