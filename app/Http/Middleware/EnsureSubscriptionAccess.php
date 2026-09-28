@@ -10,9 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureSubscriptionAccess
 {
-    public function __construct(private readonly SubscriptionLifecycle $lifecycle)
-    {
-    }
+    public function __construct(private readonly SubscriptionLifecycle $lifecycle) {}
 
     public function handle(Request $request, Closure $next): Response
     {
@@ -23,7 +21,7 @@ class EnsureSubscriptionAccess
             ->with('subscription')
             ->first();
 
-        if (! $business?->subscription) {
+        if ($business?->subscription === null) {
             return response()->json([
                 'message' => 'Subscription information is not available for this business.',
                 'subscription_status' => 'missing',
