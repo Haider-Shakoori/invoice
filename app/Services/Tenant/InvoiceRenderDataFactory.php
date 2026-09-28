@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class InvoiceRenderDataFactory
 {
-    public function __construct(private readonly InvoiceTemplateCatalog $catalog)
-    {
-    }
+    public function __construct(private readonly InvoiceTemplateCatalog $catalog) {}
 
     /**
      * @return array<string, mixed>
