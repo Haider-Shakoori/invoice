@@ -54,7 +54,7 @@ class InvoiceController extends Controller
             throw ValidationException::withMessages(['invoice' => $exception->getMessage()]);
         }
 
-        return redirect()->route('tenant.invoices.show', $invoice)->with('status', 'Invoice draft created.');
+        return redirect()->route('tenant.invoices.show', $invoice)->with('status', __('ui.flash.invoice_created'));
     }
 
     public function show(InvoiceDraft $invoice): View
@@ -64,9 +64,17 @@ class InvoiceController extends Controller
         return view('tenant.invoices.show', compact('invoice'));
     }
 
-    public function edit(InvoiceDraft $invoice): View
+    public function edit(Request $request, InvoiceDraft $invoice): View
     {
         $invoice->load('lines');
+
+        if ($request->filled('template')) {
+            $template = InvoiceTemplate::query()
+                ->where('is_active', true)
+                ->findOrFail((int) $request->query('template'));
+
+            $invoice->invoice_template_id = $template->id;
+        }
 
         return view('tenant.invoices.form', [
             'invoice' => $invoice,
@@ -83,21 +91,21 @@ class InvoiceController extends Controller
             throw ValidationException::withMessages(['invoice' => $exception->getMessage()]);
         }
 
-        return redirect()->route('tenant.invoices.show', $invoice)->with('status', 'Invoice draft updated.');
+        return redirect()->route('tenant.invoices.show', $invoice)->with('status', __('ui.flash.invoice_updated'));
     }
 
     public function duplicate(Request $request, InvoiceDraft $invoice, InvoiceDraftService $service): RedirectResponse
     {
         $copy = $service->duplicate($invoice, $request->user());
 
-        return redirect()->route('tenant.invoices.edit', $copy)->with('status', 'Invoice duplicated with a new number.');
+        return redirect()->route('tenant.invoices.edit', $copy)->with('status', __('ui.flash.invoice_duplicated'));
     }
 
     public function destroy(Request $request, InvoiceDraft $invoice, InvoiceDraftService $service): RedirectResponse
     {
         $service->delete($invoice, $request->user());
 
-        return redirect()->route('tenant.invoices.index')->with('status', 'Invoice draft deleted.');
+        return redirect()->route('tenant.invoices.index')->with('status', __('ui.flash.invoice_deleted'));
     }
 
     /**
