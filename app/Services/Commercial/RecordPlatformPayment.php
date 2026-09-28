@@ -19,8 +19,7 @@ class RecordPlatformPayment
         private readonly SubscriptionLifecycle $lifecycle,
         private readonly SellerCommissionService $commissions,
         private readonly SubscriptionAuditLogger $audit,
-    ) {
-    }
+    ) {}
 
     public function handle(
         PlatformInvoice $invoice,
