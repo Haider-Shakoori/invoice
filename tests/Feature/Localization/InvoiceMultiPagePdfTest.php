@@ -5,6 +5,7 @@ namespace Tests\Feature\Localization;
 use App\Models\Tenant\BusinessProfile;
 use App\Models\Tenant\Customer;
 use App\Models\Tenant\DocumentExport;
+use App\Models\Tenant\InvoiceDraft;
 use App\Models\Tenant\InvoiceTemplate;
 use App\Models\Tenant\Role;
 use App\Models\Tenant\User;
