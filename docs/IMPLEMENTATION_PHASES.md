@@ -50,7 +50,7 @@ Status: complete and merged.
 See [PHASE3_STATUS.md](PHASE3_STATUS.md).
 
 ## Phase 4 — Localization & PDF
-Status: complete on the Phase 4 feature branch; final CI is green and PR/merge is next.
+Status: complete and merged.
 
 - complete English/Dari/Pashto tenant UI dictionaries
 - independent app locale vs document/export locale
