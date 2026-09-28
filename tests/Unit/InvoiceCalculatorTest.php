@@ -26,6 +26,38 @@ class InvoiceCalculatorTest extends TestCase
         $this->assertSame('21.58', $result['total']);
     }
 
+
+    public function test_tax_and_additional_charge_are_applied_after_invoice_discount(): void
+    {
+        $result = (new InvoiceCalculator)->calculate([
+            [
+                'description' => 'Service',
+                'quantity' => '1.000',
+                'unit_price' => '100.00',
+                'discount_percent' => '0',
+            ],
+        ], 'fixed', '10.00', '5.00', '10.0000');
+
+        $this->assertSame('100.00', $result['subtotal']);
+        $this->assertSame('10.00', $result['discount_amount']);
+        $this->assertSame('5.00', $result['additional_charge_amount']);
+        $this->assertSame('9.50', $result['tax_amount']);
+        $this->assertSame('104.50', $result['total']);
+    }
+
+    public function test_tax_rate_cannot_exceed_one_hundred_percent(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        (new InvoiceCalculator)->calculate([
+            [
+                'description' => 'Service',
+                'quantity' => '1',
+                'unit_price' => '100',
+            ],
+        ], null, null, null, '100.0001');
+    }
+
     public function test_fixed_discount_cannot_exceed_subtotal(): void
     {
         $this->expectException(InvalidArgumentException::class);
