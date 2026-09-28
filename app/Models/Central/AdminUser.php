@@ -5,10 +5,11 @@ namespace App\Models\Central;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 class AdminUser extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use CentralConnection, HasFactory, Notifiable;
 
     protected $table = 'admin_users';
 
@@ -18,6 +19,10 @@ class AdminUser extends Authenticatable
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'is_active' => 'boolean'];
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+        ];
     }
 }
