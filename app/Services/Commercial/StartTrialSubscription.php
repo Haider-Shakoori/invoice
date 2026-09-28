@@ -12,8 +12,7 @@ class StartTrialSubscription
     public function __construct(
         private readonly EnsureDefaultPlan $ensureDefaultPlan,
         private readonly SubscriptionAuditLogger $audit,
-    ) {
-    }
+    ) {}
 
     public function handle(
         Business $business,
