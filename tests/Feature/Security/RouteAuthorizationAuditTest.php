@@ -8,8 +8,9 @@ use Tests\TestCase;
 class RouteAuthorizationAuditTest extends TestCase
 {
     /**
-     * @dataProvider protectedTenantRoutes
      * @param  array<int, string>  $required
+     *
+     * @dataProvider protectedTenantRoutes
      */
     public function test_sensitive_tenant_routes_keep_required_server_middleware(string $name, array $required): void
     {
