@@ -43,4 +43,5 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    'tenant.locale',
 ])->group(base_path('routes/tenant.php'));
