@@ -27,11 +27,7 @@ class InvoiceDraftService
     {
         $customer = Customer::query()->findOrFail($data['customer_id']);
         $profile = BusinessProfile::query()->where('onboarding_completed', true)->firstOrFail();
-        $calculation = $this->calculator->calculate(
-            $data['lines'],
-            $data['discount_type'] ?? null,
-            $data['discount_value'] ?? null,
-        );
+        $calculation = $this->calculate($data);
 
         return DB::transaction(function () use ($data, $user, $customer, $profile, $calculation): InvoiceDraft {
             $templateId = $data['invoice_template_id']
@@ -46,7 +42,7 @@ class InvoiceDraftService
                 'updated_by_user_id' => $user->id,
                 'status' => 'draft',
                 'locale' => $data['locale'] ?? $profile->default_locale,
-                'currency' => 'AFN',
+                'currency' => $data['currency'] ?? $profile->default_currency ?? 'AFN',
                 'issue_date' => $data['issue_date'] ?? now()->toDateString(),
                 'due_date' => $data['due_date'] ?? null,
                 'customer_snapshot' => $this->snapshots->customer($customer),
@@ -55,6 +51,11 @@ class InvoiceDraftService
                 'discount_type' => $data['discount_type'] ?? null,
                 'discount_value' => $data['discount_value'] ?? 0,
                 'discount_amount' => $calculation['discount_amount'],
+                'tax_label' => $data['tax_label'] ?? null,
+                'tax_rate' => $data['tax_rate'] ?? 0,
+                'tax_amount' => $calculation['tax_amount'],
+                'additional_charge_label' => $data['additional_charge_label'] ?? null,
+                'additional_charge_amount' => $calculation['additional_charge_amount'],
                 'total' => $calculation['total'],
                 'notes' => $data['notes'] ?? null,
                 'terms' => $data['terms'] ?? null,
@@ -67,7 +68,7 @@ class InvoiceDraftService
             $this->history->version($invoice, $user, 'created');
             $this->history->activity($invoice, $user, 'created');
 
-            return $invoice->fresh(['customer', 'template', 'lines', 'versions', 'activity']);
+            return $invoice->fresh(['customer', 'template', 'lines', 'versions', 'activity', 'exports']);
         });
     }
 
@@ -91,10 +92,18 @@ class InvoiceDraftService
             'meta' => $line->meta,
         ])->all();
 
-        $discountType = array_key_exists('discount_type', $data) ? $data['discount_type'] : $invoice->discount_type;
-        $discountValue = array_key_exists('discount_value', $data) ? $data['discount_value'] : $invoice->discount_value;
+        $effective = [
+            ...$invoice->only([
+                'discount_type',
+                'discount_value',
+                'additional_charge_amount',
+                'tax_rate',
+            ]),
+            ...$data,
+            'lines' => $lines,
+        ];
 
-        $calculation = $this->calculator->calculate($lines, $discountType, $discountValue);
+        $calculation = $this->calculate($effective);
 
         return DB::transaction(function () use (
             $invoice,
@@ -103,22 +112,29 @@ class InvoiceDraftService
             $customer,
             $profile,
             $calculation,
-            $discountType,
-            $discountValue,
+            $effective,
         ): InvoiceDraft {
             $invoice->update([
                 'customer_id' => $customer->id,
                 'invoice_template_id' => $data['invoice_template_id'] ?? $invoice->invoice_template_id,
                 'updated_by_user_id' => $user->id,
                 'locale' => $data['locale'] ?? $invoice->locale,
+                'currency' => $data['currency'] ?? $invoice->currency,
                 'issue_date' => $data['issue_date'] ?? $invoice->issue_date,
                 'due_date' => array_key_exists('due_date', $data) ? $data['due_date'] : $invoice->due_date,
                 'customer_snapshot' => $this->snapshots->customer($customer),
                 'company_snapshot' => $this->snapshots->company($profile),
                 'subtotal' => $calculation['subtotal'],
-                'discount_type' => $discountType,
-                'discount_value' => $discountValue ?? 0,
+                'discount_type' => $effective['discount_type'] ?? null,
+                'discount_value' => $effective['discount_value'] ?? 0,
                 'discount_amount' => $calculation['discount_amount'],
+                'tax_label' => array_key_exists('tax_label', $data) ? $data['tax_label'] : $invoice->tax_label,
+                'tax_rate' => $effective['tax_rate'] ?? 0,
+                'tax_amount' => $calculation['tax_amount'],
+                'additional_charge_label' => array_key_exists('additional_charge_label', $data)
+                    ? $data['additional_charge_label']
+                    : $invoice->additional_charge_label,
+                'additional_charge_amount' => $calculation['additional_charge_amount'],
                 'total' => $calculation['total'],
                 'notes' => array_key_exists('notes', $data) ? $data['notes'] : $invoice->notes,
                 'terms' => array_key_exists('terms', $data) ? $data['terms'] : $invoice->terms,
@@ -132,7 +148,7 @@ class InvoiceDraftService
             $this->history->version($invoice, $user, 'updated');
             $this->history->activity($invoice, $user, 'updated', ['version' => $invoice->version_no]);
 
-            return $invoice->fresh(['customer', 'template', 'lines', 'versions', 'activity']);
+            return $invoice->fresh(['customer', 'template', 'lines', 'versions', 'activity', 'exports']);
         });
     }
 
@@ -160,6 +176,11 @@ class InvoiceDraftService
                 'discount_type' => $source->discount_type,
                 'discount_value' => $source->discount_value,
                 'discount_amount' => $source->discount_amount,
+                'tax_label' => $source->tax_label,
+                'tax_rate' => $source->tax_rate,
+                'tax_amount' => $source->tax_amount,
+                'additional_charge_label' => $source->additional_charge_label,
+                'additional_charge_amount' => $source->additional_charge_amount,
                 'total' => $source->total,
                 'notes' => $source->notes,
                 'terms' => $source->terms,
@@ -184,7 +205,7 @@ class InvoiceDraftService
             $this->history->activity($copy, $user, 'duplicated', ['source_invoice_id' => $source->id]);
             $this->history->activity($source, $user, 'duplicated_to', ['invoice_id' => $copy->id]);
 
-            return $copy->fresh(['customer', 'template', 'lines', 'versions', 'activity']);
+            return $copy->fresh(['customer', 'template', 'lines', 'versions', 'activity', 'exports']);
         });
     }
 
@@ -202,5 +223,20 @@ class InvoiceDraftService
 
             $invoice->delete();
         });
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function calculate(array $data): array
+    {
+        return $this->calculator->calculate(
+            $data['lines'],
+            $data['discount_type'] ?? null,
+            $data['discount_value'] ?? null,
+            $data['additional_charge_amount'] ?? null,
+            $data['tax_rate'] ?? null,
+        );
     }
 }
