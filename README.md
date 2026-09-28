@@ -60,4 +60,4 @@ See [docs/INVOICE_TEMPLATES.md](docs/INVOICE_TEMPLATES.md).
 4. Localization/PDF: English/Dari/Pashto, RTL-safe rendering, 20 templates, export.
 5. Release quality: security/isolation tests, PDF matrix, backups, performance, deployment.
 
-Phases 1 and 2 are complete and merged. Phase 3 is implemented on its feature branch and is undergoing final CI.
+Phases 1, 2 and 3 are complete and merged. Phase 4 — Localization & PDF — is next.
