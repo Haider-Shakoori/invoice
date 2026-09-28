@@ -37,69 +37,81 @@ class BackupManager
 
         $centralRelative = 'database/central.sql';
         $centralAbsolute = $root.'/'.$centralRelative;
+
         $this->dumpDatabase((string) config('database.connections.mysql.database'), $centralAbsolute);
         $manifest['files'][] = $this->entry($root, $centralRelative, 'central_database');
 
         foreach (Tenant::query()->orderBy('slug')->cursor() as $tenant) {
-                $tenantKey = (string) $tenant->getTenantKey();
-                $safeTenant = preg_replace('/[^A-Za-z0-9._-]/', '_', $tenantKey) ?: 'tenant';
-                $tenantRoot = 'tenants/'.$safeTenant;
-                $databaseRelative = $tenantRoot.'/database.sql';
+            $tenantKey = (string) $tenant->getTenantKey();
+            $safeTenant = preg_replace('/[^A-Za-z0-9._-]/', '_', $tenantKey) ?: 'tenant';
+            $tenantRoot = 'tenants/'.$safeTenant;
+            $databaseRelative = $tenantRoot.'/database.sql';
 
-                $this->makePrivateDirectory($root.'/'.$tenantRoot);
-                $this->makePrivateDirectory($root.'/'.$tenantRoot.'/files');
+            $this->makePrivateDirectory($root.'/'.$tenantRoot);
+            $this->makePrivateDirectory($root.'/'.$tenantRoot.'/files');
 
-                $databaseName = $tenant->database()->getName();
-                $this->dumpDatabase($databaseName, $root.'/'.$databaseRelative);
-                $manifest['files'][] = $this->entry($root, $databaseRelative, 'tenant_database', $tenantKey);
+            $databaseName = $tenant->database()->getName();
+            $this->dumpDatabase($databaseName, $root.'/'.$databaseRelative);
+            $manifest['files'][] = $this->entry(
+                $root,
+                $databaseRelative,
+                'tenant_database',
+                $tenantKey,
+            );
 
-                $fileCount = $tenant->run(function () use ($root, $tenantRoot, $tenantKey, &$manifest): int {
-                    $count = 0;
+            $fileCount = $tenant->run(function () use ($root, $tenantRoot, $tenantKey, &$manifest): int {
+                $count = 0;
 
-                    foreach (Storage::disk('local')->allFiles() as $path) {
-                        $relative = $tenantRoot.'/files/'.ltrim($path, '/');
-                        $absolute = $root.'/'.$relative;
-                        $this->makePrivateDirectory(dirname($absolute));
+                foreach (Storage::disk('local')->allFiles() as $path) {
+                    $relative = $tenantRoot.'/files/'.ltrim($path, '/');
+                    $absolute = $root.'/'.$relative;
 
-                        $stream = Storage::disk('local')->readStream($path);
+                    $this->makePrivateDirectory(dirname($absolute));
 
-                        if (! is_resource($stream)) {
-                            throw new RuntimeException("Unable to read tenant file [{$path}].");
-                        }
+                    $stream = Storage::disk('local')->readStream($path);
 
-                        $destination = fopen($absolute, 'wb');
-
-                        if ($destination === false) {
-                            fclose($stream);
-                            throw new RuntimeException("Unable to create backup file [{$relative}].");
-                        }
-
-                        try {
-                            stream_copy_to_stream($stream, $destination);
-                        } finally {
-                            fclose($stream);
-                            fclose($destination);
-                        }
-
-                        chmod($absolute, 0600);
-                        $manifest['files'][] = $this->entry($root, $relative, 'tenant_file', $tenantKey);
-                        $count++;
+                    if (is_resource($stream) === false) {
+                        throw new RuntimeException("Unable to read tenant file [{$path}].");
                     }
 
-                    return $count;
-                });
+                    $destination = fopen($absolute, 'wb');
 
-                $manifest['tenants'][] = [
-                    'id' => $tenantKey,
-                    'slug' => $tenant->slug,
-                    'database' => $databaseName,
-                    'private_file_count' => $fileCount,
-                ];
+                    if ($destination === false) {
+                        fclose($stream);
+
+                        throw new RuntimeException("Unable to create backup file [{$relative}].");
+                    }
+
+                    try {
+                        stream_copy_to_stream($stream, $destination);
+                    } finally {
+                        fclose($stream);
+                        fclose($destination);
+                    }
+
+                    chmod($absolute, 0600);
+                    $manifest['files'][] = $this->entry(
+                        $root,
+                        $relative,
+                        'tenant_file',
+                        $tenantKey,
+                    );
+                    $count++;
+                }
+
+                return $count;
+            });
+
+            $manifest['tenants'][] = [
+                'id' => $tenantKey,
+                'slug' => $tenant->slug,
+                'database' => $databaseName,
+                'private_file_count' => $fileCount,
+            ];
         }
 
         $manifest['file_count'] = count($manifest['files']);
         $manifestPath = $root.'/manifest.json';
-
         $json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         if ($json === false || file_put_contents($manifestPath, $json) === false) {
@@ -122,19 +134,23 @@ class BackupManager
     {
         $root = realpath($path);
 
-        if ($root === false || ! is_dir($root)) {
+        if ($root === false || is_dir($root) === false) {
             throw new RuntimeException('Backup directory does not exist.');
         }
 
         $manifestPath = $root.'/manifest.json';
 
-        if (! is_file($manifestPath)) {
+        if (is_file($manifestPath) === false) {
             throw new RuntimeException('Backup manifest.json is missing.');
         }
 
         $manifest = json_decode((string) file_get_contents($manifestPath), true);
 
-        if (! is_array($manifest) || ($manifest['format'] ?? null) !== 1 || ! is_array($manifest['files'] ?? null)) {
+        if (
+            is_array($manifest) === false
+            || ($manifest['format'] ?? null) !== 1
+            || is_array($manifest['files'] ?? null) === false
+        ) {
             throw new RuntimeException('Backup manifest is invalid or unsupported.');
         }
 
@@ -146,13 +162,15 @@ class BackupManager
 
             if ($relative === '' || str_contains($relative, '..')) {
                 $errors[] = 'Manifest contains an unsafe file path.';
+
                 continue;
             }
 
             $absolute = $root.'/'.$relative;
 
-            if (! is_file($absolute)) {
+            if (is_file($absolute) === false) {
                 $errors[] = "Missing backup file: {$relative}";
+
                 continue;
             }
 
@@ -161,7 +179,7 @@ class BackupManager
             $hash = hash_file('sha256', $absolute);
             $size = filesize($absolute);
 
-            if (! hash_equals((string) ($entry['sha256'] ?? ''), $hash)) {
+            if (hash_equals((string) ($entry['sha256'] ?? ''), (string) $hash) === false) {
                 $errors[] = "SHA-256 mismatch: {$relative}";
             }
 
@@ -206,9 +224,11 @@ class BackupManager
         $process->setTimeout((float) config('invoice.operations.backup_timeout_seconds', 900));
         $process->run();
 
-        if (! $process->isSuccessful() || ! is_file($output)) {
+        if ($process->isSuccessful() === false || is_file($output) === false) {
             throw new RuntimeException(
-                "Database backup failed for [{$database}]: ".trim($process->getErrorOutput() ?: $process->getOutput())
+                "Database backup failed for [{$database}]: ".trim(
+                    $process->getErrorOutput() ?: $process->getOutput()
+                )
             );
         }
 
@@ -220,7 +240,7 @@ class BackupManager
         $configured = trim((string) config('invoice.operations.mysqldump_binary'));
 
         if ($configured !== '') {
-            if (! is_executable($configured)) {
+            if (is_executable($configured) === false) {
                 throw new RuntimeException('Configured MYSQLDUMP_BINARY is not executable.');
             }
 
@@ -241,7 +261,7 @@ class BackupManager
         if ($requestedPath !== null && trim($requestedPath) !== '') {
             $path = $requestedPath;
 
-            if (! str_starts_with($path, DIRECTORY_SEPARATOR)) {
+            if (str_starts_with($path, DIRECTORY_SEPARATOR) === false) {
                 $path = base_path($path);
             }
 
@@ -253,7 +273,11 @@ class BackupManager
 
     private function makePrivateDirectory(string $path): void
     {
-        if (! is_dir($path) && ! mkdir($path, 0700, true) && ! is_dir($path)) {
+        if (
+            is_dir($path) === false
+            && mkdir($path, 0700, true) === false
+            && is_dir($path) === false
+        ) {
             throw new RuntimeException("Unable to create private backup directory [{$path}].");
         }
 
