@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureOnboardingCompleted;
 use App\Http\Middleware\EnsureSubscriptionAccess;
 use App\Http\Middleware\EnsureTenantPermission;
+use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SetTenantLocale;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscription.access' => EnsureSubscriptionAccess::class,
             'onboarding.complete' => EnsureOnboardingCompleted::class,
             'tenant.locale' => SetTenantLocale::class,
+            'request.context' => RequestContext::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => '/login');
