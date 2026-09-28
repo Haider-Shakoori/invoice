@@ -100,7 +100,7 @@ class InvoiceMultiPagePdfTest extends TestCase
     }
 
     /**
-     * @return array{0:\App\Models\Tenant\InvoiceDraft,1:User}
+     * @return array{0:InvoiceDraft,1:User}
      */
     private function fixture(int $lineCount, int $templateNumber, string $locale): array
     {
