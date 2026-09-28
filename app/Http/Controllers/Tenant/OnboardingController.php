@@ -7,7 +7,6 @@ use App\Models\Tenant\BusinessProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -21,10 +20,6 @@ class OnboardingController extends Controller
             'onboarding_step' => 1,
             'onboarding_completed' => false,
         ]);
-
-        if ($profile->onboarding_completed) {
-            return redirect()->route('tenant.invoices.index');
-        }
 
         return view('tenant.onboarding', compact('profile'));
     }
@@ -66,10 +61,6 @@ class OnboardingController extends Controller
             'stamp' => 'stamp_path',
         ] as $input => $column) {
             if ($request->hasFile($input)) {
-                if ($profile->{$column}) {
-                    Storage::disk('local')->delete($profile->{$column});
-                }
-
                 $profile->{$column} = $this->storeBrandAsset($request->file($input), $input);
             }
         }
@@ -99,7 +90,7 @@ class OnboardingController extends Controller
 
         return $file->storeAs(
             'branding',
-            $kind.'.'.$extension,
+            $kind.'-'.bin2hex(random_bytes(12)).'.'.$extension,
             'local',
         );
     }
