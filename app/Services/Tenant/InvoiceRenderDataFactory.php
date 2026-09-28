@@ -37,7 +37,7 @@ class InvoiceRenderDataFactory
 
     private function dataUri(?string $path): ?string
     {
-        if (! $path || ! Storage::disk('local')->exists($path)) {
+        if ($path === null || $path === '' || Storage::disk('local')->exists($path) === false) {
             return null;
         }
 
