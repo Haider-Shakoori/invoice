@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Central\SellerCommission;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 
@@ -20,7 +20,7 @@ class CommissionController extends Controller
         ]);
     }
 
-    public function markPaid(Request $request, SellerCommission $sellerCommission): JsonResponse
+    public function markPaid(Request $request, SellerCommission $sellerCommission): RedirectResponse
     {
         $data = $request->validate([
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -35,6 +35,6 @@ class CommissionController extends Controller
             'notes' => $data['notes'] ?? $sellerCommission->notes,
         ]);
 
-        return response()->json($sellerCommission->fresh());
+        return back()->with('status', 'Commission marked as paid.');
     }
 }
