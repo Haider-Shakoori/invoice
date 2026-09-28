@@ -4,6 +4,7 @@ namespace Tests\Feature\Central;
 
 use App\Models\Central\AdminUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class CentralUiTest extends TestCase
@@ -21,7 +22,13 @@ class CentralUiTest extends TestCase
 
     public function test_authenticated_platform_pages_render_web_ui_instead_of_json(): void
     {
-        $admin = AdminUser::factory()->create(['is_active' => true]);
+        $admin = AdminUser::query()->create([
+            'name' => 'UI Test Operator',
+            'email' => 'ui-test@example.test',
+            'password' => Hash::make('TestPassword123'),
+            'role' => 'head_operator',
+            'is_active' => true,
+        ]);
 
         $this->actingAs($admin, 'central');
 
