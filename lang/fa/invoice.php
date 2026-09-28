@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'invoice' => 'فاکتور',
+    'professional_invoice' => 'فاکتور رسمی',
+    'bill_to' => 'صورت‌حساب برای',
+    'invoice_details' => 'جزئیات فاکتور',
+    'number' => 'شماره',
+    'date' => 'تاریخ',
+    'due_date' => 'تاریخ سررسید',
+    'currency' => 'واحد پول',
+    'description' => 'توضیحات',
+    'qty' => 'مقدار',
+    'unit' => 'واحد',
+    'unit_price' => 'قیمت واحد',
+    'discount' => 'تخفیف',
+    'amount' => 'مبلغ',
+    'notes' => 'یادداشت‌ها',
+    'terms' => 'شرایط',
+    'subtotal' => 'جمع فرعی',
+    'additional_charge' => 'هزینه اضافی',
+    'tax' => 'مالیات',
+    'total' => 'مجموع',
+    'authorized_signature' => 'امضا / مهر مجاز',
+    'page' => 'صفحه',
+    'of' => 'از',
+];

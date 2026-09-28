@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'invoice' => 'INVOICE',
+    'professional_invoice' => 'PROFESSIONAL INVOICE',
+    'bill_to' => 'BILL TO',
+    'invoice_details' => 'INVOICE DETAILS',
+    'number' => 'Number',
+    'date' => 'Date',
+    'due_date' => 'Due date',
+    'currency' => 'Currency',
+    'description' => 'DESCRIPTION',
+    'qty' => 'QTY',
+    'unit' => 'UNIT',
+    'unit_price' => 'UNIT PRICE',
+    'discount' => 'Discount',
+    'amount' => 'AMOUNT',
+    'notes' => 'NOTES',
+    'terms' => 'TERMS',
+    'subtotal' => 'Subtotal',
+    'additional_charge' => 'Additional charge',
+    'tax' => 'Tax',
+    'total' => 'TOTAL',
+    'authorized_signature' => 'Authorized signature / stamp',
+    'page' => 'Page',
+    'of' => 'of',
+];
