@@ -42,7 +42,7 @@ class StaffController extends Controller
 
         $user->roles()->sync([$role->id]);
 
-        return back()->with('status', 'Staff account created.');
+        return back()->with('status', __('ui.flash.staff_created'));
     }
 
     public function update(Request $request, User $staff): RedirectResponse
@@ -75,6 +75,6 @@ class StaffController extends Controller
         $staff->save();
         $staff->roles()->sync([$role->id]);
 
-        return back()->with('status', 'Staff account updated.');
+        return back()->with('status', __('ui.flash.staff_updated'));
     }
 }
