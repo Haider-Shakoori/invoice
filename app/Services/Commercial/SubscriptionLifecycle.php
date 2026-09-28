@@ -8,9 +8,7 @@ use Carbon\CarbonInterface;
 
 class SubscriptionLifecycle
 {
-    public function __construct(private readonly SubscriptionAuditLogger $audit)
-    {
-    }
+    public function __construct(private readonly SubscriptionAuditLogger $audit) {}
 
     public function activate(Subscription $subscription, CarbonInterface $effectiveAt, ?int $actorId = null): Subscription
     {
