@@ -14,7 +14,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->middleware('request.context')->group(function (): void {
-        Route::get('/', fn () => response()->json(['product' => 'Invoice Drafts SaaS', 'scope' => 'central', 'status' => 'ok']));
+        Route::view('/', 'central.landing')->name('central.home');
         Route::get('/health/ready', ReadinessController::class)->name('central.health.ready');
 
         Route::middleware('guest:central')->group(function (): void {
@@ -25,7 +25,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
 
         Route::middleware('auth:central')->group(function (): void {
-            Route::get('/admin', fn () => response()->json(['message' => 'Central operator interface foundation']))->name('central.admin');
+            Route::get('/admin', fn () => redirect()->route('central.commercial'))->name('central.admin');
             Route::get('/admin/commercial', [CommercialController::class, 'index'])->name('central.commercial');
             Route::post('/admin/businesses/{business}/activation-invoice', [CommercialInvoiceController::class, 'activation'])->name('central.commercial.activation-invoice');
             Route::post('/admin/businesses/{business}/renewal-invoice', [CommercialInvoiceController::class, 'renewal'])->name('central.commercial.renewal-invoice');
