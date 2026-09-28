@@ -8,7 +8,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; background: #fff; }
     body {
-        font-family: {!! $rtl ? "'".config('invoice.pdf.rtl_font_family')."'" : "'".config('invoice.pdf.font_family')."'" !!};
+        font-family: {!! $rtl ? config('invoice.pdf.rtl_font_family') : config('invoice.pdf.font_family') !!};
         color: #202938;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -345,7 +345,6 @@
 </head>
 <body>
 @php
-    app()->setLocale($locale);
     $companyName = $company['display_name'] ?? '';
     $companySecondary = $company['secondary_name'] ?? null;
     $companyLocation = collect([$company['city_province'] ?? null, $company['address'] ?? null])->filter()->join(' · ');
