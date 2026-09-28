@@ -16,12 +16,17 @@ class SubscriptionLifecycle
     {
         $previous = $subscription->status;
         $plan = $subscription->plan()->firstOrFail();
-        $periodEnd = $effectiveAt->copy()->addMonths($plan->term_months);
+
+        $periodStart = $subscription->trial_ends_at && $subscription->trial_ends_at->greaterThan($effectiveAt)
+            ? $subscription->trial_ends_at->copy()
+            : $effectiveAt->copy();
+
+        $periodEnd = $periodStart->copy()->addMonthsNoOverflow($plan->term_months);
 
         $subscription->update([
             'status' => SubscriptionStatus::Active,
             'activated_at' => $subscription->activated_at ?? $effectiveAt,
-            'current_period_start' => $effectiveAt,
+            'current_period_start' => $periodStart,
             'current_period_end' => $periodEnd,
             'grace_ends_at' => null,
             'locked_at' => null,
@@ -29,6 +34,7 @@ class SubscriptionLifecycle
 
         $subscription->business()->update([
             'status' => 'active',
+            'trial_ends_at' => $subscription->trial_ends_at,
             'subscription_ends_at' => $periodEnd,
         ]);
 
@@ -37,7 +43,11 @@ class SubscriptionLifecycle
             'subscription_activated',
             $previous,
             SubscriptionStatus::Active,
-            ['current_period_end' => $periodEnd->toIso8601String()],
+            [
+                'current_period_start' => $periodStart->toIso8601String(),
+                'current_period_end' => $periodEnd->toIso8601String(),
+                'remaining_trial_preserved' => $periodStart->greaterThan($effectiveAt),
+            ],
             $actorId ? 'admin' : 'system',
             $actorId,
         );
@@ -50,18 +60,16 @@ class SubscriptionLifecycle
         $previous = $subscription->status;
         $plan = $subscription->plan()->firstOrFail();
 
-        $base = $subscription->current_period_end && $subscription->current_period_end->isFuture()
+        $base = $subscription->current_period_end && $subscription->current_period_end->greaterThan($effectiveAt)
             ? $subscription->current_period_end->copy()
             : $effectiveAt->copy();
 
-        $periodEnd = $base->copy()->addMonths($plan->term_months);
+        $periodEnd = $base->copy()->addMonthsNoOverflow($plan->term_months);
 
         $subscription->update([
             'status' => SubscriptionStatus::Active,
             'activated_at' => $subscription->activated_at ?? $effectiveAt,
-            'current_period_start' => $subscription->current_period_end && $subscription->current_period_end->isFuture()
-                ? $subscription->current_period_start
-                : $effectiveAt,
+            'current_period_start' => $subscription->current_period_start ?? $effectiveAt,
             'current_period_end' => $periodEnd,
             'grace_ends_at' => null,
             'locked_at' => null,
@@ -77,7 +85,10 @@ class SubscriptionLifecycle
             'subscription_renewed',
             $previous,
             SubscriptionStatus::Active,
-            ['current_period_end' => $periodEnd->toIso8601String()],
+            [
+                'renewal_base' => $base->toIso8601String(),
+                'current_period_end' => $periodEnd->toIso8601String(),
+            ],
             $actorId ? 'admin' : 'system',
             $actorId,
         );
@@ -98,10 +109,14 @@ class SubscriptionLifecycle
         if ($subscription->status === SubscriptionStatus::Active
             && $subscription->current_period_end
             && $subscription->current_period_end->lte($at)) {
-            $graceDays = (int) config('invoice.commercial.grace_days', 0);
+            $graceDays = max(0, (int) config('invoice.commercial.grace_days', 0));
 
             if ($graceDays > 0) {
-                return $this->enterGrace($subscription, $at, $graceDays);
+                $graceEnd = $subscription->current_period_end->copy()->addDays($graceDays);
+
+                if ($graceEnd->gt($at)) {
+                    return $this->enterGrace($subscription, $graceEnd);
+                }
             }
 
             return $this->expire($subscription, 'subscription_expired', $at);
@@ -116,10 +131,9 @@ class SubscriptionLifecycle
         return $subscription;
     }
 
-    private function enterGrace(Subscription $subscription, CarbonInterface $at, int $days): Subscription
+    private function enterGrace(Subscription $subscription, CarbonInterface $graceEnd): Subscription
     {
         $previous = $subscription->status;
-        $graceEnd = $at->copy()->addDays($days);
 
         $subscription->update([
             'status' => SubscriptionStatus::Grace,
@@ -156,7 +170,10 @@ class SubscriptionLifecycle
             $event,
             $previous,
             SubscriptionStatus::Expired,
-            ['locked_at' => $subscription->fresh()->locked_at?->toIso8601String()],
+            [
+                'locked_at' => $subscription->fresh()->locked_at?->toIso8601String(),
+                'data_retained' => true,
+            ],
         );
 
         return $subscription->fresh();
