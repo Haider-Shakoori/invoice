@@ -18,8 +18,7 @@ class InvoiceDraftService
         private readonly InvoiceNumberGenerator $numbers,
         private readonly InvoiceSnapshotFactory $snapshots,
         private readonly InvoiceHistoryRecorder $history,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
