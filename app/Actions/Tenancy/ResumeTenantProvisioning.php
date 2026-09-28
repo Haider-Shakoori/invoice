@@ -8,17 +8,19 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\Role;
 use App\Models\Tenant\User;
 use App\Services\Tenancy\ProvisioningRecorder;
+use App\Services\Tenancy\TenantDatabaseProvisioner;
 use Database\Seeders\TenantBaselineSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
-use Stancl\Tenancy\Database\DatabaseManager as TenancyDatabaseManager;
-use Stancl\Tenancy\Jobs\CreateDatabase;
 use Throwable;
 
 class ResumeTenantProvisioning
 {
-    public function __construct(private readonly ProvisioningRecorder $recorder) {}
+    public function __construct(
+        private readonly ProvisioningRecorder $recorder,
+        private readonly TenantDatabaseProvisioner $databases,
+    ) {}
 
     public function handle(Tenant $tenant, string $ownerPassword): Tenant
     {
@@ -37,12 +39,7 @@ class ResumeTenantProvisioning
             $database = $this->recorder->start($tenant->getTenantKey(), 'retry_database');
 
             try {
-                $manager = $tenant->database()->manager();
-                $databaseName = $tenant->database()->getName();
-
-                if (! $manager->databaseExists($databaseName)) {
-                    (new CreateDatabase($tenant))->handle(app(TenancyDatabaseManager::class));
-                }
+                $this->databases->ensure($tenant);
 
                 $this->recorder->success($database);
             } catch (Throwable $e) {

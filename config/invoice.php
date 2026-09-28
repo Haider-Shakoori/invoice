@@ -21,6 +21,12 @@ return [
         'mysqldump_binary' => env('MYSQLDUMP_BINARY'),
         'backup_timeout_seconds' => (int) env('BACKUP_TIMEOUT_SECONDS', 900),
     ],
+    'tenancy' => [
+        'database_provisioner' => env('TENANT_DB_PROVISIONER', 'native'),
+        'cpanel_uapi_binary' => env('CPANEL_UAPI_BINARY', '/usr/bin/uapi'),
+        'cpanel_mysql_user' => env('CPANEL_MYSQL_USER', env('DB_USERNAME')),
+        'cpanel_uapi_timeout_seconds' => (int) env('CPANEL_UAPI_TIMEOUT_SECONDS', 30),
+    ],
     'locales' => ['en', 'fa', 'ps'],
     'default_locale' => env('APP_LOCALE', 'en'),
     'reserved_subdomains' => [
