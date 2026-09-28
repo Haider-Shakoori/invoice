@@ -91,6 +91,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install MySQL backup client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends default-mysql-client
+
       - name: Prepare writable Laravel directories
         run: |
           mkdir -p bootstrap/cache
