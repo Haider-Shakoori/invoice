@@ -68,13 +68,19 @@ Status: complete and merged.
 See [PHASE4_STATUS.md](PHASE4_STATUS.md).
 
 ## Phase 5 — Release Quality & Production Readiness
-- full security and cross-tenant authorization review
-- visual PDF stress fixtures for long descriptions and multi-page invoices
-- verify two-page and five-page rendering across representative template families
-- backup/restore procedures and restore drill
-- lower-bandwidth/performance profiling
-- accessibility/responsive review
-- production Chromium/font packaging validation
-- production deployment checklist
-- tenant-wide safe migration process
-- monitoring/logging/health checks
+Status: implementation complete on the Phase 5 feature branch; final CI/PR merge is pending.
+
+- server-side route authorization regression audit
+- cross-tenant MySQL isolation suite
+- real two-page and five-page A4 PDF stress fixtures
+- production Chromium/font validation in CI and release doctor
+- verified central + per-tenant database/private-file backup bundles
+- backup tamper detection and controlled restore runbook
+- low-bandwidth/performance review
+- keyboard/accessibility and responsive baseline review
+- production deployment runbook
+- audited tenant-wide dry-run/apply migration process
+- request-ID tracing, daily logging and readiness health checks
+- hourly subscription synchronization with overlap protection
+
+See [PHASE5_STATUS.md](PHASE5_STATUS.md), [DEPLOYMENT.md](DEPLOYMENT.md) and [BACKUP_RESTORE.md](BACKUP_RESTORE.md).

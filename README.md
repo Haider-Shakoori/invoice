@@ -73,4 +73,15 @@ See [docs/INVOICE_TEMPLATES.md](docs/INVOICE_TEMPLATES.md) and [docs/PHASE4_STAT
 4. Localization/PDF: English/Dari/Pashto, RTL-safe rendering, 20 templates, preview/export.
 5. Release quality: security/isolation review, visual PDF stress matrix, backups, performance, deployment.
 
-Phases 1–4 are complete. Phase 5 — Release Quality & Production Readiness — is next.
+Phases 1–5 are implemented. Phase 5 is in final CI/PR verification before merge.
+
+
+## Production operations
+
+Release operations include readiness checks, audited tenant migrations, verified central/tenant backup bundles, request tracing and multi-page PDF stress coverage.
+
+See:
+- [Phase 5 status](docs/PHASE5_STATUS.md)
+- [Production deployment runbook](docs/DEPLOYMENT.md)
+- [Backup and restore runbook](docs/BACKUP_RESTORE.md)
+- [Performance and accessibility review](docs/PERFORMANCE_ACCESSIBILITY.md)
