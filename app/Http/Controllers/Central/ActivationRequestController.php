@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Central\ActivationRequest;
 use App\Services\Commercial\IssueActivationInvoice;
 use App\Services\Commercial\SubscriptionAuditLogger;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +28,7 @@ class ActivationRequestController extends Controller
         ActivationRequest $activationRequest,
         IssueActivationInvoice $issue,
         SubscriptionAuditLogger $audit,
-    ): JsonResponse {
+    ): RedirectResponse {
         $data = $request->validate([
             'review_note' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -60,17 +60,14 @@ class ActivationRequestController extends Controller
             Auth::guard('central')->id(),
         );
 
-        return response()->json([
-            'activation_request' => $activationRequest->fresh(),
-            'invoice' => $invoice,
-        ]);
+        return back()->with('status', 'Activation approved and platform invoice '.$invoice->number.' issued.');
     }
 
     public function reject(
         Request $request,
         ActivationRequest $activationRequest,
         SubscriptionAuditLogger $audit,
-    ): JsonResponse {
+    ): RedirectResponse {
         $data = $request->validate([
             'review_note' => ['required', 'string', 'max:2000'],
         ]);
@@ -96,6 +93,6 @@ class ActivationRequestController extends Controller
             Auth::guard('central')->id(),
         );
 
-        return response()->json($activationRequest->fresh());
+        return back()->with('status', 'Activation request rejected.');
     }
 }
