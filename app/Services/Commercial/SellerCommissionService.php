@@ -2,6 +2,7 @@
 
 namespace App\Services\Commercial;
 
+use App\Enums\PlatformInvoiceStatus;
 use App\Models\Central\PlatformPayment;
 use App\Models\Central\SellerCommission;
 
@@ -9,7 +10,8 @@ class SellerCommissionService
 {
     public function createForPayment(PlatformPayment $payment): ?SellerCommission
     {
-        $subscription = $payment->invoice()->firstOrFail()->subscription()->with('seller')->first();
+        $invoice = $payment->invoice()->firstOrFail();
+        $subscription = $invoice->subscription()->with('seller')->first();
 
         if (! $subscription?->seller || ! $subscription->seller->is_active) {
             return null;
@@ -22,10 +24,28 @@ class SellerCommissionService
         $seller = $subscription->seller;
         $rate = (float) $seller->commission_rate;
 
-        $amount = match ($seller->commission_type) {
-            'fixed' => (int) round($rate),
-            default => (int) round($payment->amount_afn * ($rate / 100)),
-        };
+        if ($rate <= 0) {
+            return null;
+        }
+
+        if ($seller->commission_type === 'fixed') {
+            if ($invoice->status !== PlatformInvoiceStatus::Paid) {
+                return null;
+            }
+
+            $alreadyAccrued = SellerCommission::query()
+                ->where('seller_id', $seller->id)
+                ->whereHas('payment', fn ($query) => $query->where('platform_invoice_id', $invoice->id))
+                ->exists();
+
+            if ($alreadyAccrued) {
+                return null;
+            }
+
+            $amount = (int) round($rate);
+        } else {
+            $amount = (int) round($payment->amount_afn * ($rate / 100));
+        }
 
         if ($amount <= 0) {
             return null;
