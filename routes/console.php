@@ -5,6 +5,7 @@ use App\Models\Central\Business;
 use App\Models\Central\PlatformInvoice;
 use App\Services\Commercial\StartTrialSubscription;
 use App\Services\Commercial\SubscriptionStatusSynchronizer;
+use App\Services\Operations\ReleaseReadiness;
 use Database\Seeders\HeadOperatorSeeder;
 use Illuminate\Support\Facades\Artisan;
 
@@ -54,3 +55,31 @@ Artisan::command('invoice:sync-subscriptions', function (): int {
 
     return self::SUCCESS;
 })->purpose('Backfill and synchronize commercial subscription state without deleting tenant data');
+
+
+Artisan::command('invoice:doctor {--json : Output machine-readable JSON}', function (ReleaseReadiness $readiness): int {
+    $result = $readiness->inspect();
+
+    if ($this->option('json')) {
+        $this->line(json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        return $result['ready'] ? self::SUCCESS : self::FAILURE;
+    }
+
+    $this->info('Invoice Drafts release readiness');
+    $this->line('Status: '.$result['status']);
+    $this->newLine();
+
+    $rows = collect($result['checks'])
+        ->map(fn (array $check, string $name) => [
+            $name,
+            strtoupper($check['status']),
+            $check['message'],
+        ])
+        ->values()
+        ->all();
+
+    $this->table(['Check', 'Status', 'Message'], $rows);
+
+    return $result['ready'] ? self::SUCCESS : self::FAILURE;
+})->purpose('Verify database, private storage, cache, PDF runtime, RTL fonts and production guards');
