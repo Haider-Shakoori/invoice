@@ -1,9 +1,13 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-return new class extends Migration {
-    public function up(): void {
+
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
@@ -29,8 +33,8 @@ return new class extends Migration {
             $table->string('logo_path')->nullable();
             $table->string('signature_path')->nullable();
             $table->string('stamp_path')->nullable();
-            $table->string('default_locale',5)->default('en');
-            $table->string('default_currency',3)->default('AFN');
+            $table->string('default_locale', 5)->default('en');
+            $table->string('default_currency', 3)->default('AFN');
             $table->boolean('onboarding_completed')->default(false);
             $table->unsignedTinyInteger('onboarding_step')->default(1);
             $table->timestamps();
@@ -52,7 +56,9 @@ return new class extends Migration {
             $table->timestamps();
         });
     }
-    public function down(): void {
+
+    public function down(): void
+    {
         Schema::dropIfExists('invoice_templates');
         Schema::dropIfExists('settings');
         Schema::dropIfExists('business_profiles');

@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\Central\Tenant;
@@ -13,11 +14,11 @@ class AvailableTenantSlugTest extends TestCase
 
     public function test_reserved_subdomain_is_rejected(): void
     {
-        config()->set('invoice.reserved_subdomains',['admin','api']);
+        config()->set('invoice.reserved_subdomains', ['admin', 'api']);
 
-        $validator=Validator::make(
-            ['slug'=>'admin'],
-            ['slug'=>[new AvailableTenantSlug]]
+        $validator = Validator::make(
+            ['slug' => 'admin'],
+            ['slug' => [new AvailableTenantSlug]]
         );
 
         $this->assertTrue($validator->fails());
@@ -26,14 +27,14 @@ class AvailableTenantSlugTest extends TestCase
     public function test_existing_slug_is_rejected(): void
     {
         Tenant::query()->create([
-            'id'=>'tenant-1',
-            'slug'=>'acme',
-            'provisioning_status'=>'pending',
+            'id' => 'tenant-1',
+            'slug' => 'acme',
+            'provisioning_status' => 'pending',
         ]);
 
-        $validator=Validator::make(
-            ['slug'=>'acme'],
-            ['slug'=>[new AvailableTenantSlug]]
+        $validator = Validator::make(
+            ['slug' => 'acme'],
+            ['slug' => [new AvailableTenantSlug]]
         );
 
         $this->assertTrue($validator->fails());
@@ -41,11 +42,11 @@ class AvailableTenantSlugTest extends TestCase
 
     public function test_unused_slug_is_accepted(): void
     {
-        config()->set('invoice.reserved_subdomains',[]);
+        config()->set('invoice.reserved_subdomains', []);
 
-        $validator=Validator::make(
-            ['slug'=>'kabul-traders'],
-            ['slug'=>[new AvailableTenantSlug]]
+        $validator = Validator::make(
+            ['slug' => 'kabul-traders'],
+            ['slug' => [new AvailableTenantSlug]]
         );
 
         $this->assertFalse($validator->fails());

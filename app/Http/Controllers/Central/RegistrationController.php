@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Central;
 
 use App\Actions\Tenancy\ProvisionTenant;
@@ -16,7 +17,7 @@ class RegistrationController extends Controller
 
     public function store(RegisterBusinessRequest $request, ProvisionTenant $provisionTenant): RedirectResponse
     {
-        $tenant=$provisionTenant->handle($request->validated());
+        $tenant = $provisionTenant->handle($request->validated());
 
         return redirect()->away('https://'.$tenant->domains()->firstOrFail()->domain.'/login');
     }

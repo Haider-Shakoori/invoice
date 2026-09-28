@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $exception, Request $request) {
-            return response('Not Found',404);
+            return response('Not Found', 404);
         });
     })
     ->create();

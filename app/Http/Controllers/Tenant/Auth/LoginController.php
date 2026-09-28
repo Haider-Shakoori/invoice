@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Tenant\Auth;
 
 use App\Http\Controllers\Controller;
@@ -16,15 +17,15 @@ class LoginController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $credentials=$request->validate([
-            'email'=>['required','email'],
-            'password'=>['required','string'],
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        $credentials['is_active']=true;
+        $credentials['is_active'] = true;
 
-        if (! Auth::guard('web')->attempt($credentials,$request->boolean('remember'))) {
-            return back()->withErrors(['email'=>__('auth.failed')])->onlyInput('email');
+        if (! Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
+            return back()->withErrors(['email' => __('auth.failed')])->onlyInput('email');
         }
 
         $request->session()->regenerate();
