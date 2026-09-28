@@ -17,11 +17,12 @@ class InvoiceTemplateCatalog
             $key = $template->key;
         } elseif (is_int($template) || ctype_digit((string) $template)) {
             $number = (int) $template;
-            $key = collect(config('invoice_templates'))
-                ->first(fn (array $definition) => $definition['number'] === $number, null);
+            $match = collect(config('invoice_templates'))
+                ->map(fn (array $definition, string $key) => ['key' => $key, ...$definition])
+                ->first(fn (array $definition) => $definition['number'] === $number);
 
-            if (is_array($key)) {
-                return $key;
+            if (is_array($match)) {
+                return $match;
             }
 
             throw new InvalidArgumentException("Unknown invoice template number [{$number}].");
