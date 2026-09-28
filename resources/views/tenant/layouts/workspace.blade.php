@@ -42,6 +42,7 @@
                 @if(auth()->user()->hasTenantPermission('staff.manage'))
                     <a href="{{ route('tenant.staff.index') }}" class="{{ request()->routeIs('tenant.staff.*') ? 'active' : '' }}">{{ __('ui.nav.staff') }}</a>
                 @endif
+                <a href="{{ route('tenant.onboarding.show') }}" class="{{ request()->routeIs('tenant.onboarding.*') ? 'active' : '' }}">{{ __('ui.nav.company') }}</a>
                 <a href="{{ route('tenant.subscription.status') }}">{{ __('ui.nav.subscription') }}</a>
             @endauth
         </nav>
