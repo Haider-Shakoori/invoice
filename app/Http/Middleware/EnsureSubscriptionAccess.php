@@ -27,18 +27,20 @@ class EnsureSubscriptionAccess
             return response()->json([
                 'message' => 'Subscription information is not available for this business.',
                 'subscription_status' => 'missing',
-            ], 423);
+                'data_retained' => true,
+            ], 402);
         }
 
         $subscription = $this->lifecycle->synchronize($business->subscription);
 
         if (! $subscription->status->allowsTenantAccess()) {
             return response()->json([
-                'message' => 'This subscription is not currently active.',
+                'message' => 'This subscription is not currently active. Tenant data remains safely retained.',
                 'subscription_status' => $subscription->status->value,
                 'trial_ends_at' => $subscription->trial_ends_at?->toIso8601String(),
                 'current_period_end' => $subscription->current_period_end?->toIso8601String(),
-            ], 423);
+                'data_retained' => true,
+            ], 402);
         }
 
         $request->attributes->set('subscription', $subscription);
