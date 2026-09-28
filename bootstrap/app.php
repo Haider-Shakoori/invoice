@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.permission' => EnsureTenantPermission::class,
         ]);
 
+        // Both central and tenant login endpoints live at /login on their own host.
+        // Returning a relative path keeps authentication redirects on the current domain.
+        $middleware->redirectGuestsTo(fn () => '/login');
+
         // Tenancy identification must run before authentication so unknown hosts
         // fail closed instead of being redirected by Laravel's auth middleware.
         $middleware->prependToPriorityList(
