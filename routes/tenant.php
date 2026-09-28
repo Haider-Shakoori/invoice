@@ -27,8 +27,12 @@ Route::middleware('auth:web')->group(function (): void {
     Route::middleware('subscription.access')->group(function (): void {
         Route::get('/', WorkspaceController::class)->name('tenant.home');
 
-        Route::get('/onboarding', [OnboardingController::class, 'show'])->name('tenant.onboarding.show');
-        Route::put('/onboarding', [OnboardingController::class, 'update'])->name('tenant.onboarding.update');
+        Route::get('/onboarding', [OnboardingController::class, 'show'])
+            ->middleware('tenant.permission:settings.manage')
+            ->name('tenant.onboarding.show');
+        Route::put('/onboarding', [OnboardingController::class, 'update'])
+            ->middleware('tenant.permission:settings.manage')
+            ->name('tenant.onboarding.update');
 
         Route::middleware('onboarding.complete')->group(function (): void {
             Route::get('/clients', [CustomerController::class, 'index'])
