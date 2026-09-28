@@ -22,6 +22,7 @@
 <a class="{{ request()->routeIs('central.activation-requests.*')?'active':'' }}" href="{{ route('central.activation-requests.index') }}"><span class="dot"></span>Activation requests</a>
 <a class="{{ request()->routeIs('central.commissions.*')?'active':'' }}" href="{{ route('central.commissions.index') }}"><span class="dot"></span>Commissions</a>
 <a href="{{ route('central.register') }}"><span class="dot"></span>New business</a>
+@if(Auth::guard('central')->user()?->role === 'head_operator')<a class="{{ request()->routeIs('central.operators.*')?'active':'' }}" href="{{ route('central.operators.index') }}"><span class="dot"></span>Operators</a>@endif
 <a class="{{ request()->routeIs('central.security.*')?'active':'' }}" href="{{ route('central.security.edit') }}"><span class="dot"></span>Security</a>
 </nav>
 <div class="sidebar-foot">Central SaaS administration<br>Invoice Drafts · BusinessOS</div>
