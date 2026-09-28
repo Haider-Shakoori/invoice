@@ -58,7 +58,6 @@ Artisan::command('invoice:sync-subscriptions', function (): int {
     return self::SUCCESS;
 })->purpose('Backfill and synchronize commercial subscription state without deleting tenant data');
 
-
 Artisan::command('invoice:doctor {--json : Output machine-readable JSON}', function (ReleaseReadiness $readiness): int {
     $result = $readiness->inspect();
 
@@ -85,7 +84,6 @@ Artisan::command('invoice:doctor {--json : Output machine-readable JSON}', funct
 
     return $result['ready'] ? self::SUCCESS : self::FAILURE;
 })->purpose('Verify database, private storage, cache, PDF runtime, RTL fonts and production guards');
-
 
 Artisan::command('invoice:migrate-tenants {--tenant=* : Tenant UUID or slug; repeat for multiple tenants} {--dry-run : Show migration status without changing tenant databases}', function (TenantMigrationRunner $runner): int {
     $targets = array_values(array_filter(array_map('strval', (array) $this->option('tenant'))));
