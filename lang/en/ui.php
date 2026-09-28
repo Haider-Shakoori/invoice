@@ -7,6 +7,7 @@ return [
         'invoices' => 'Invoices',
         'clients' => 'Clients',
         'templates' => 'Templates',
+        'company' => 'Company Settings',
         'staff' => 'Staff',
         'subscription' => 'Subscription',
         'sign_out' => 'Sign out',
