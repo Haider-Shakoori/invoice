@@ -3,15 +3,15 @@
 namespace Tests\Feature\Security;
 
 use Illuminate\Routing\Route;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class RouteAuthorizationAuditTest extends TestCase
 {
     /**
      * @param  array<int, string>  $required
-     *
-     * @dataProvider protectedTenantRoutes
      */
+    #[DataProvider('protectedTenantRoutes')]
     public function test_sensitive_tenant_routes_keep_required_server_middleware(string $name, array $required): void
     {
         $route = app('router')->getRoutes()->getByName($name);
