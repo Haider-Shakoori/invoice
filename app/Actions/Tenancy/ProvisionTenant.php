@@ -9,13 +9,12 @@ use App\Models\Tenant\Role;
 use App\Models\Tenant\User;
 use App\Services\Commercial\StartTrialSubscription;
 use App\Services\Tenancy\ProvisioningRecorder;
+use App\Services\Tenancy\TenantDatabaseProvisioner;
 use Database\Seeders\TenantBaselineSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Stancl\Tenancy\Database\DatabaseManager as TenancyDatabaseManager;
-use Stancl\Tenancy\Jobs\CreateDatabase;
 use Throwable;
 
 class ProvisionTenant
@@ -23,6 +22,7 @@ class ProvisionTenant
     public function __construct(
         private readonly ProvisioningRecorder $recorder,
         private readonly StartTrialSubscription $startTrial,
+        private readonly TenantDatabaseProvisioner $databases,
     ) {}
 
     public function handle(array $data): Tenant
@@ -54,7 +54,7 @@ class ProvisionTenant
         try {
             $database = $this->recorder->start($tenant->getTenantKey(), 'create_database');
             try {
-                (new CreateDatabase($tenant))->handle(app(TenancyDatabaseManager::class));
+                $this->databases->ensure($tenant);
 
                 $tenant->forceFill([
                     'provisioning_status' => ProvisioningStatus::DatabaseCreated->value,
