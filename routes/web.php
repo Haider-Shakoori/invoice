@@ -5,6 +5,7 @@ use App\Http\Controllers\Central\Auth\LoginController as CentralLoginController;
 use App\Http\Controllers\Central\CommercialController;
 use App\Http\Controllers\Central\CommercialInvoiceController;
 use App\Http\Controllers\Central\CommissionController;
+use App\Http\Controllers\Central\OperatorController;
 use App\Http\Controllers\Central\ReadinessController;
 use App\Http\Controllers\Central\RegistrationController;
 use App\Http\Controllers\Central\SecurityController;
@@ -49,6 +50,10 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('/admin/activation-requests', [ActivationRequestController::class, 'index'])->name('central.activation-requests.index');
             Route::post('/admin/activation-requests/{activationRequest}/approve', [ActivationRequestController::class, 'approve'])->name('central.activation-requests.approve');
             Route::post('/admin/activation-requests/{activationRequest}/reject', [ActivationRequestController::class, 'reject'])->name('central.activation-requests.reject');
+            Route::get('/admin/operators', [OperatorController::class, 'index'])->name('central.operators.index');
+            Route::post('/admin/operators', [OperatorController::class, 'store'])->name('central.operators.store');
+            Route::put('/admin/operators/{operator}', [OperatorController::class, 'update'])->name('central.operators.update');
+            Route::put('/admin/operators/{operator}/password', [OperatorController::class, 'resetPassword'])->name('central.operators.password');
             Route::get('/admin/security', [SecurityController::class, 'edit'])->name('central.security.edit');
             Route::put('/admin/security/password', [SecurityController::class, 'updatePassword'])->name('central.security.password');
             Route::post('/logout', [CentralLoginController::class, 'destroy'])->name('central.logout');
