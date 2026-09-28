@@ -26,7 +26,6 @@ class InvoiceCalculatorTest extends TestCase
         $this->assertSame('21.58', $result['total']);
     }
 
-
     public function test_tax_and_additional_charge_are_applied_after_invoice_discount(): void
     {
         $result = (new InvoiceCalculator)->calculate([
