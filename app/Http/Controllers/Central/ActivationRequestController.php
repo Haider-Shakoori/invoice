@@ -37,7 +37,7 @@ class ActivationRequestController extends Controller
 
         $subscription = $activationRequest->business()->firstOrFail()->subscription()->firstOrFail();
 
-        if ($activationRequest->seller_id && ! $subscription->seller_id) {
+        if ($activationRequest->seller_id && !$subscription->seller_id) {
             $subscription->update(['seller_id' => $activationRequest->seller_id]);
         }
 
