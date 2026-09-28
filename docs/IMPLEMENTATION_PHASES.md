@@ -50,19 +50,31 @@ Status: complete and merged.
 See [PHASE3_STATUS.md](PHASE3_STATUS.md).
 
 ## Phase 4 — Localization & PDF
-- complete English/Dari/Pashto application UI
-- independent app locale vs export locale
-- RTL-safe Chromium PDF path
-- all 20 templates
-- visual template gallery
-- preview + PDF export
-- 60 template/locale acceptance combinations
+Status: complete on the Phase 4 feature branch; final CI is green and PR/merge is next.
 
-## Phase 5 — Release Quality
-- full test suite
-- cross-tenant isolation/security review
-- backup/restore procedures
-- lower-bandwidth optimization
+- complete English/Dari/Pashto tenant UI dictionaries
+- independent app locale vs document/export locale
+- mirrored RTL workspace and invoice composition for Dari/Pashto
+- Chromium/Chrome PDF rendering with real mixed-script PDF smoke coverage
+- all 20 source-derived template families
+- visual template gallery
+- HTML document preview + private PDF export
+- tenant-private logo/signature/stamp assets
+- authorized export history/re-download
+- AFN/USD, optional tax and additional-charge support
+- 20 templates × 3 document locales = 60-combination render matrix
+- export/template/locale changes do not mutate invoice number, totals, locale or version
+
+See [PHASE4_STATUS.md](PHASE4_STATUS.md).
+
+## Phase 5 — Release Quality & Production Readiness
+- full security and cross-tenant authorization review
+- visual PDF stress fixtures for long descriptions and multi-page invoices
+- verify two-page and five-page rendering across representative template families
+- backup/restore procedures and restore drill
+- lower-bandwidth/performance profiling
 - accessibility/responsive review
+- production Chromium/font packaging validation
 - production deployment checklist
 - tenant-wide safe migration process
+- monitoring/logging/health checks
