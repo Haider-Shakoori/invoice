@@ -12,8 +12,7 @@ class IssueRenewalInvoice
     public function __construct(
         private readonly CommercialNumberGenerator $numbers,
         private readonly SubscriptionAuditLogger $audit,
-    ) {
-    }
+    ) {}
 
     public function handle(Subscription $subscription): PlatformInvoice
     {
