@@ -7,6 +7,7 @@ use App\Http\Controllers\Central\CommercialInvoiceController;
 use App\Http\Controllers\Central\CommissionController;
 use App\Http\Controllers\Central\ReadinessController;
 use App\Http\Controllers\Central\RegistrationController;
+use App\Http\Controllers\Central\SecurityController;
 use App\Http\Controllers\Central\SellerController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -48,6 +49,8 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('/admin/activation-requests', [ActivationRequestController::class, 'index'])->name('central.activation-requests.index');
             Route::post('/admin/activation-requests/{activationRequest}/approve', [ActivationRequestController::class, 'approve'])->name('central.activation-requests.approve');
             Route::post('/admin/activation-requests/{activationRequest}/reject', [ActivationRequestController::class, 'reject'])->name('central.activation-requests.reject');
+            Route::get('/admin/security', [SecurityController::class, 'edit'])->name('central.security.edit');
+            Route::put('/admin/security/password', [SecurityController::class, 'updatePassword'])->name('central.security.password');
             Route::post('/logout', [CentralLoginController::class, 'destroy'])->name('central.logout');
         });
     });
