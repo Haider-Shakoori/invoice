@@ -3,9 +3,12 @@
 namespace Tests\Feature\Tenancy;
 
 use App\Actions\Tenancy\ProvisionTenant;
+use App\Actions\Tenancy\ResumeTenantProvisioning;
+use App\Models\Central\Business;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper;
 use Tests\TestCase;
@@ -113,6 +116,45 @@ class TenantDatabaseIsolationMysqlTest extends TestCase
         });
 
         $this->assertSame([], $queueBootstrapper->getPayload('sync'));
+    }
+
+    public function test_failed_provisioning_can_resume_without_destroying_tenant_data(): void
+    {
+        [$tenantA] = $this->provisionPair();
+
+        $tenantA->run(function (): void {
+            User::query()->create([
+                'name' => 'Durable Staff',
+                'email' => 'durable-staff@example.test',
+                'password' => 'StrongPass123',
+                'role' => 'staff',
+                'is_active' => true,
+            ]);
+        });
+
+        $tenantA->forceFill([
+            'provisioning_status' => 'failed',
+            'ready_at' => null,
+        ])->save();
+
+        Business::query()
+            ->where('tenant_id', $tenantA->getTenantKey())
+            ->update(['provisioning_status' => 'failed']);
+
+        /** @var ResumeTenantProvisioning $resume */
+        $resume = app(ResumeTenantProvisioning::class);
+        $resumed = $resume->handle($tenantA->fresh(), 'NewStrongPass123');
+
+        $this->assertSame('ready', $resumed->provisioning_status);
+        $this->assertSame(1, $resumed->domains()->count());
+
+        $resumed->run(function (): void {
+            $this->assertTrue(User::query()->where('email', 'durable-staff@example.test')->exists());
+
+            $owner = User::query()->where('role', 'owner')->firstOrFail();
+            $this->assertTrue(Hash::check('NewStrongPass123', $owner->password));
+            $this->assertTrue($owner->roles()->where('key', 'owner')->exists());
+        });
     }
 
     /**
