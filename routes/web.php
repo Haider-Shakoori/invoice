@@ -1,7 +1,12 @@
 <?php
 
+use App\Http\Controllers\Central\ActivationRequestController;
 use App\Http\Controllers\Central\Auth\LoginController as CentralLoginController;
+use App\Http\Controllers\Central\CommercialController;
+use App\Http\Controllers\Central\CommercialInvoiceController;
+use App\Http\Controllers\Central\CommissionController;
 use App\Http\Controllers\Central\RegistrationController;
+use App\Http\Controllers\Central\SellerController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -19,6 +24,16 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         Route::middleware('auth:central')->group(function (): void {
             Route::get('/admin', fn () => response()->json(['message' => 'Central operator interface foundation']))->name('central.admin');
+            Route::get('/admin/commercial', [CommercialController::class, 'index'])->name('central.commercial');
+            Route::post('/admin/businesses/{business}/activation-invoice', [CommercialInvoiceController::class, 'activation'])->name('central.commercial.activation-invoice');
+            Route::post('/admin/businesses/{business}/renewal-invoice', [CommercialInvoiceController::class, 'renewal'])->name('central.commercial.renewal-invoice');
+            Route::post('/admin/platform-invoices/{platformInvoice}/payments', [CommercialInvoiceController::class, 'recordPayment'])->name('central.commercial.payments.store');
+            Route::post('/admin/sellers', [SellerController::class, 'store'])->name('central.sellers.store');
+            Route::get('/admin/commissions', [CommissionController::class, 'index'])->name('central.commissions.index');
+            Route::post('/admin/commissions/{sellerCommission}/paid', [CommissionController::class, 'markPaid'])->name('central.commissions.paid');
+            Route::get('/admin/activation-requests', [ActivationRequestController::class, 'index'])->name('central.activation-requests.index');
+            Route::post('/admin/activation-requests/{activationRequest}/approve', [ActivationRequestController::class, 'approve'])->name('central.activation-requests.approve');
+            Route::post('/admin/activation-requests/{activationRequest}/reject', [ActivationRequestController::class, 'reject'])->name('central.activation-requests.reject');
             Route::post('/logout', [CentralLoginController::class, 'destroy'])->name('central.logout');
         });
     });
