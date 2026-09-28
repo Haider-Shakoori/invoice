@@ -34,11 +34,17 @@ The tenant application does **not** include stock, inventory, POS, accounting, p
 - stancl/tenancy
 - MySQL/MariaDB, utf8mb4
 - Redis when available
-- Blade/Livewire-oriented server-rendered UI
+- Blade-oriented low-bandwidth tenant workspace
 - domain-scoped tenant sessions
 - tenant-isolated media/PDF storage
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Tenant workspace
+
+After company onboarding, users land directly on **Invoices** rather than an analytics dashboard. Phase 3 provides client management, invoice draft creation/editing, transaction-safe numbering, authoritative server calculations, customer/company snapshots, version/activity history, duplication, and role-based staff access.
+
+See [docs/PHASE3_STATUS.md](docs/PHASE3_STATUS.md).
 
 ## Invoice templates
 
@@ -50,8 +56,8 @@ See [docs/INVOICE_TEMPLATES.md](docs/INVOICE_TEMPLATES.md).
 
 1. Foundation: tenancy, auth, provisioning, central/tenant schemas, operator roles.
 2. Commercial SaaS: trial, activation/renewal, manual payments, central receipts, sellers/commissions.
-3. Tenant workspace: onboarding, clients, invoice editor, calculations, numbering, authorization.
+3. Tenant workspace: onboarding, clients, invoice editor, calculations, numbering, snapshots, staff and version history.
 4. Localization/PDF: English/Dari/Pashto, RTL-safe rendering, 20 templates, export.
 5. Release quality: security/isolation tests, PDF matrix, backups, performance, deployment.
 
-Phase 1 is complete. Phase 2 implementation is documented in [docs/PHASE2_STATUS.md](docs/PHASE2_STATUS.md).
+Phases 1 and 2 are complete and merged. Phase 3 is implemented on its feature branch and is undergoing final CI.
