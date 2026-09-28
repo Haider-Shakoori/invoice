@@ -4,6 +4,7 @@ namespace Tests\Feature\Tenancy;
 
 use App\Actions\Tenancy\ProvisionTenant;
 use App\Actions\Tenancy\ResumeTenantProvisioning;
+use App\Models\Central\AdminUser;
 use App\Models\Central\Business;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\User;
