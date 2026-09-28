@@ -10,7 +10,7 @@ class SubscriptionUiTest extends TestCase
     {
         $source = file_get_contents(app_path('Http/Controllers/Tenant/SubscriptionStatusController.php'));
 
-        $this->assertStringContainsString("request()->", str_replace('$request->', 'request()->', $source));
+        $this->assertStringContainsString('request()->', str_replace('$request->', 'request()->', $source));
         $this->assertStringContainsString("view('tenant.subscription.show'", $source);
         $this->assertStringContainsString('response()->json', $source);
         $this->assertFileExists(resource_path('views/tenant/subscription/show.blade.php'));
