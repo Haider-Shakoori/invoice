@@ -7,6 +7,7 @@ return [
         'invoices' => 'بلونه',
         'clients' => 'پېرودونکي',
         'templates' => 'قالبونه',
+        'company' => 'د شرکت تنظیمات',
         'staff' => 'کارکوونکي',
         'subscription' => 'ګډون',
         'sign_out' => 'وتل',
