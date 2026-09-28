@@ -36,14 +36,14 @@ class CustomerController extends Controller
     {
         Customer::query()->create($this->validated($request));
 
-        return back()->with('status', 'Client created.');
+        return back()->with('status', __('ui.flash.client_created'));
     }
 
     public function update(Request $request, Customer $customer): RedirectResponse
     {
         $customer->update($this->validated($request, $customer));
 
-        return back()->with('status', 'Client updated.');
+        return back()->with('status', __('ui.flash.client_updated'));
     }
 
     public function destroy(Customer $customer): RedirectResponse
@@ -52,7 +52,7 @@ class CustomerController extends Controller
 
         $customer->delete();
 
-        return back()->with('status', 'Client deleted.');
+        return back()->with('status', __('ui.flash.client_deleted'));
     }
 
     /**
