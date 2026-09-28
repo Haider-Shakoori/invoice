@@ -7,19 +7,20 @@ use App\Models\Central\ActivationRequest;
 use App\Services\Commercial\IssueActivationInvoice;
 use App\Services\Commercial\SubscriptionAuditLogger;
 use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ActivationRequestController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
-        return response()->json(
-            ActivationRequest::query()
+        return view('central.activation-requests', [
+            'requests' => ActivationRequest::query()
                 ->with(['business.subscription', 'seller', 'reviewedBy'])
                 ->latest('requested_at')
                 ->paginate(50),
-        );
+        ]);
     }
 
     public function approve(
