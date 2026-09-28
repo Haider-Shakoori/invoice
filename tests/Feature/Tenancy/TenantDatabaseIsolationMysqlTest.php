@@ -7,9 +7,11 @@ use App\Actions\Tenancy\ResumeTenantProvisioning;
 use App\Models\Central\AdminUser;
 use App\Models\Central\Business;
 use App\Models\Central\Tenant;
+use App\Models\Tenant\Customer;
 use App\Models\Tenant\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper;
 use Tests\TestCase;
@@ -178,6 +180,30 @@ class TenantDatabaseIsolationMysqlTest extends TestCase
             $owner = User::query()->where('role', 'owner')->firstOrFail();
             $this->assertTrue(Hash::check('NewStrongPass123', $owner->password));
             $this->assertTrue($owner->roles()->where('key', 'owner')->exists());
+        });
+    }
+
+    public function test_invoice_workspace_schema_and_customer_data_are_tenant_isolated(): void
+    {
+        [$tenantA, $tenantB] = $this->provisionPair();
+
+        $tenantA->run(function (): void {
+            $this->assertTrue(Schema::hasTable('customers'));
+            $this->assertTrue(Schema::hasTable('invoice_drafts'));
+            $this->assertTrue(Schema::hasTable('invoice_versions'));
+
+            Customer::query()->create([
+                'name' => 'Alpha Private Client',
+                'phone' => '0700000001',
+                'is_active' => true,
+            ]);
+
+            $this->assertTrue(Customer::query()->where('name', 'Alpha Private Client')->exists());
+        });
+
+        $tenantB->run(function (): void {
+            $this->assertTrue(Schema::hasTable('customers'));
+            $this->assertFalse(Customer::query()->where('name', 'Alpha Private Client')->exists());
         });
     }
 
