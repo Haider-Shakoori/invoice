@@ -1,35 +1,40 @@
 # Phase 1 Status
 
-## Implemented on feat/phase-1-foundation
+## Implementation checklist
 
-- Laravel 12 application foundation
-- stancl/tenancy configuration
-- central domain vs tenant domain routing
-- separate central and tenant authentication guards
-- central operator login
-- tenant login
-- registration request validation
-- reserved and duplicate subdomain checks
-- central tenancy/business/provisioning schema
-- tenant users/company/settings/template schema
-- 20 built-in template definitions
-- tenant provisioning action
-- provisioning audit events
-- tenant-scoped filesystem/cache/queue bootstrappers
-- safe unknown-host test
-- GitHub Actions quality workflow
+- [x] Laravel 12 application foundation
+- [x] stancl/tenancy configuration and context bootstrappers
+- [x] central domain vs tenant domain routing
+- [x] separate central and tenant authentication guards
+- [x] central operator login and environment-backed bootstrap command
+- [x] tenant login with inactive-account protection
+- [x] registration validation
+- [x] reserved and duplicate subdomain checks
+- [x] central tenancy/business/provisioning schema
+- [x] isolated tenant database creation and tenant migrations
+- [x] tenant users/company/settings/template schema
+- [x] 20 built-in template definitions
+- [x] Owner/Admin/Staff/Read-only roles and server-side permissions
+- [x] provisioning audit events
+- [x] non-destructive failed-provisioning recovery
+- [x] tenant-scoped database/cache/filesystem/queue bootstrappers
+- [x] unknown tenant hosts fail closed with 404
+- [x] central/tenant authentication boundary test
+- [x] real MySQL cross-tenant database isolation test
+- [x] tenant filesystem isolation test
+- [x] queue tenant-context propagation/reversion test
+- [x] provisioning recovery preserves existing tenant data
+- [x] Composer lock file committed for reproducible installs
+- [x] Composer security audit in CI
+- [x] Laravel Pint enforcement in CI
+- [x] PHPUnit quality suite
+- [x] dedicated MySQL tenancy integration job
 
-## Still required before Phase 1 is complete
+## Merge gate
 
-- make provisioning idempotent/retry-safe for partially completed tenants
-- central operator seeder/bootstrap command
-- tenant Owner/Admin/Staff/Read-only permission enforcement
-- domain/session boundary hardening tests
-- explicit cross-tenant DB read/write isolation tests
-- tenant-scoped file/download isolation tests
-- queue tenancy-context test
-- provisioning rollback/retry tests
-- run CI successfully against the complete application scaffold
-- resolve any Pint/PHPUnit/Composer issues discovered by CI
+Phase 1 is ready to merge only when the current pull-request head passes both CI jobs:
 
-No Phase 1 feature should be considered release-ready until the CI suite runs successfully.
+1. `quality` — Composer install/audit, Pint, PHPUnit.
+2. `tenancy-integration` — real MySQL tenant database, filesystem, queue-context, session-boundary and recovery tests.
+
+The tenant product boundary remains invoice-only. Inventory, POS, accounting, warehouse, procurement, payroll and similar ERP modules are intentionally outside this application.
