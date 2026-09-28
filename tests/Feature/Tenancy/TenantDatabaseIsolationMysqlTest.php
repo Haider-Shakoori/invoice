@@ -6,9 +6,11 @@ use App\Actions\Tenancy\ProvisionTenant;
 use App\Actions\Tenancy\ResumeTenantProvisioning;
 use App\Models\Central\AdminUser;
 use App\Models\Central\Business;
+use App\Models\Central\ProvisioningEvent;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Customer;
 use App\Models\Tenant\User;
+use App\Services\Operations\TenantMigrationRunner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -205,6 +207,35 @@ class TenantDatabaseIsolationMysqlTest extends TestCase
             $this->assertTrue(Schema::hasTable('customers'));
             $this->assertFalse(Customer::query()->where('name', 'Alpha Private Client')->exists());
         });
+    }
+
+    public function test_release_migration_runner_supports_dry_run_and_audited_apply(): void
+    {
+        [$tenantA] = $this->provisionPair();
+
+        $runner = app(TenantMigrationRunner::class);
+
+        $dryRun = $runner->run([$tenantA->slug], true);
+
+        $this->assertSame(1, $dryRun['total']);
+        $this->assertSame(1, $dryRun['succeeded']);
+        $this->assertSame(0, $dryRun['failed']);
+        $this->assertSame('dry-run', $dryRun['results'][0]['status']);
+
+        $applied = $runner->run([$tenantA->getTenantKey()]);
+
+        $this->assertSame(1, $applied['total']);
+        $this->assertSame(1, $applied['succeeded']);
+        $this->assertSame(0, $applied['failed']);
+
+        $event = ProvisioningEvent::query()
+            ->where('tenant_id', $tenantA->getTenantKey())
+            ->where('step', 'release_tenant_migration')
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertSame('success', $event->status);
+        $this->assertNotNull($event->finished_at);
     }
 
     /**
