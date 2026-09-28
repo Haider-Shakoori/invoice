@@ -33,7 +33,7 @@ Status: complete and merged.
 See [PHASE2_STATUS.md](PHASE2_STATUS.md).
 
 ## Phase 3 — Tenant Workspace
-Status: implementation complete on the Phase 3 feature branch; awaiting final CI/merge.
+Status: complete and merged.
 
 - mandatory resumable company onboarding
 - direct landing on Invoices (no analytics dashboard)
