@@ -7,6 +7,7 @@ use App\Models\Central\Business;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Role;
 use App\Models\Tenant\User;
+use App\Services\Commercial\StartTrialSubscription;
 use App\Services\Tenancy\ProvisioningRecorder;
 use Database\Seeders\TenantBaselineSeeder;
 use Illuminate\Support\Facades\Artisan;
@@ -19,7 +20,10 @@ use Throwable;
 
 class ProvisionTenant
 {
-    public function __construct(private readonly ProvisioningRecorder $recorder) {}
+    public function __construct(
+        private readonly ProvisioningRecorder $recorder,
+        private readonly StartTrialSubscription $startTrial,
+    ) {}
 
     public function handle(array $data): Tenant
     {
@@ -32,16 +36,17 @@ class ProvisionTenant
                 'provisioning_status' => ProvisioningStatus::Pending->value,
             ]);
 
-            Business::query()->create([
+            $business = Business::query()->create([
                 'tenant_id' => $tenant->getTenantKey(),
                 'display_name' => $data['company_name'],
                 'owner_name' => $data['owner_name'],
                 'owner_email' => $data['owner_email'],
                 'owner_phone' => $data['owner_phone'] ?? null,
                 'status' => 'trial',
-                'trial_ends_at' => now()->addDays((int) config('invoice.trial_days', 7)),
                 'provisioning_status' => ProvisioningStatus::Pending->value,
             ]);
+
+            $this->startTrial->handle($business);
 
             return $tenant;
         });
