@@ -40,8 +40,7 @@ class BackupManager
         $this->dumpDatabase((string) config('database.connections.mysql.database'), $centralAbsolute);
         $manifest['files'][] = $this->entry($root, $centralRelative, 'central_database');
 
-        Tenant::query()->orderBy('slug')->chunkById(50, function ($tenants) use ($root, &$manifest): void {
-            foreach ($tenants as $tenant) {
+        foreach (Tenant::query()->orderBy('slug')->cursor() as $tenant) {
                 $tenantKey = (string) $tenant->getTenantKey();
                 $safeTenant = preg_replace('/[^A-Za-z0-9._-]/', '_', $tenantKey) ?: 'tenant';
                 $tenantRoot = 'tenants/'.$safeTenant;
@@ -96,8 +95,7 @@ class BackupManager
                     'database' => $databaseName,
                     'private_file_count' => $fileCount,
                 ];
-            }
-        });
+        }
 
         $manifest['file_count'] = count($manifest['files']);
         $manifestPath = $root.'/manifest.json';
