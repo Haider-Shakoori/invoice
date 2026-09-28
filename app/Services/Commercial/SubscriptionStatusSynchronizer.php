@@ -6,9 +6,7 @@ use App\Models\Central\Subscription;
 
 class SubscriptionStatusSynchronizer
 {
-    public function __construct(private readonly SubscriptionLifecycle $lifecycle)
-    {
-    }
+    public function __construct(private readonly SubscriptionLifecycle $lifecycle) {}
 
     public function handle(): int
     {
