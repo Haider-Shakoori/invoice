@@ -15,7 +15,7 @@ Status: complete and merged.
 - schema/isolation tests
 
 ## Phase 2 — Commercial SaaS
-Status: implementation complete on the Phase 2 feature branch; awaiting CI/merge.
+Status: complete and merged.
 
 - signup + requested subdomain
 - configurable 7-day trial
