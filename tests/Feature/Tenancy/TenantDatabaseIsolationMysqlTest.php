@@ -10,8 +10,10 @@ use App\Models\Central\ProvisioningEvent;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Customer;
 use App\Models\Tenant\User;
+use App\Services\Operations\BackupManager;
 use App\Services\Operations\TenantMigrationRunner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -236,6 +238,50 @@ class TenantDatabaseIsolationMysqlTest extends TestCase
 
         $this->assertSame('success', $event->status);
         $this->assertNotNull($event->finished_at);
+    }
+
+    public function test_release_backup_captures_tenant_database_and_private_files_and_verifies_hashes(): void
+    {
+        [$tenantA] = $this->provisionPair();
+        $root = storage_path('framework/testing/mysql-backup-'.bin2hex(random_bytes(5)));
+
+        $tenantA->run(function (): void {
+            Storage::disk('local')->put('branding/backup-marker.txt', 'tenant-private-marker');
+
+            Customer::query()->create([
+                'name' => 'Backup Customer',
+                'phone' => '0700000099',
+                'is_active' => true,
+            ]);
+        });
+
+        try {
+            $manifest = app(BackupManager::class)->create($root);
+
+            $this->assertFileExists($root.'/manifest.json');
+            $this->assertFileExists($root.'/database/central.sql');
+
+            $tenantEntry = collect($manifest['tenants'])
+                ->firstWhere('id', $tenantA->getTenantKey());
+
+            $this->assertNotNull($tenantEntry);
+
+            $safeTenant = preg_replace('/[^A-Za-z0-9._-]/', '_', (string) $tenantA->getTenantKey());
+
+            $this->assertFileExists($root.'/tenants/'.$safeTenant.'/database.sql');
+            $this->assertFileExists($root.'/tenants/'.$safeTenant.'/files/branding/backup-marker.txt');
+            $this->assertSame(
+                'tenant-private-marker',
+                file_get_contents($root.'/tenants/'.$safeTenant.'/files/branding/backup-marker.txt'),
+            );
+
+            $verified = app(BackupManager::class)->verify($root);
+
+            $this->assertTrue($verified['valid']);
+            $this->assertGreaterThanOrEqual(3, $verified['checked']);
+        } finally {
+            File::deleteDirectory($root);
+        }
     }
 
     /**
