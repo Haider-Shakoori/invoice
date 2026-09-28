@@ -49,6 +49,13 @@ jobs:
         run: php artisan test
 
       - name: Release doctor
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
         run: php artisan invoice:doctor --json
 
   tenancy-integration:

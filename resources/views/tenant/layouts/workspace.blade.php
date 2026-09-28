@@ -22,11 +22,14 @@
         .right{text-align:end}.nowrap{white-space:nowrap}.empty{text-align:center;padding:34px;color:#64748b}.subtle{font-size:13px;color:#64748b}.field{margin-bottom:14px}
         .locale-form{margin-top:18px}.locale-form label{color:#94a3b8}.locale-form select{background:#1f2937;border-color:#334155;color:#fff}
         .numeric{direction:ltr;unicode-bidi:isolate}
+        .skip-link{position:fixed;inset-inline-start:12px;top:-60px;z-index:9999;background:#fff;color:#111827;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:800}.skip-link:focus{top:12px}
+        :focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
         @media(max-width:900px){.shell{grid-template-columns:1fr}aside{padding:14px 16px}nav{display:flex;gap:6px;overflow:auto}.brand{margin-bottom:12px}.grid-2,.grid-3,.stats{grid-template-columns:1fr}main{padding:18px}.topbar{align-items:flex-start;flex-direction:column}.table-wrap{overflow-x:auto}}
     </style>
     @stack('head')
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <div class="shell">
     <aside>
         <div class="brand">{{ __('ui.product') }}</div>
@@ -70,7 +73,7 @@
             </form>
         @endauth
     </aside>
-    <main>
+    <main id="main-content" tabindex="-1">
         <div class="topbar">
             <div>
                 <h1>@yield('heading', __('ui.workspace'))</h1>

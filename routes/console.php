@@ -10,6 +10,7 @@ use App\Services\Operations\ReleaseReadiness;
 use App\Services\Operations\TenantMigrationRunner;
 use Database\Seeders\HeadOperatorSeeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('invoice:about', function (): void {
     $this->info('Invoice Drafts SaaS');
@@ -143,3 +144,8 @@ Artisan::command('invoice:backup-verify {path : Backup bundle directory}', funct
 
     return self::FAILURE;
 })->purpose('Verify every backup file against its recorded SHA-256 and byte size');
+
+
+Schedule::command('invoice:sync-subscriptions')
+    ->hourly()
+    ->withoutOverlapping();

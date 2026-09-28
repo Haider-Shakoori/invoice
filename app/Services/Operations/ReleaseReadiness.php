@@ -168,6 +168,22 @@ class ReleaseReadiness
             $issues[] = 'APP_KEY is missing';
         }
 
+        if (config('session.secure') !== true) {
+            $issues[] = 'SESSION_SECURE_COOKIE must be true';
+        }
+
+        if ((string) config('session.domain') !== '') {
+            $issues[] = 'SESSION_DOMAIN must remain unset for host-only tenant sessions';
+        }
+
+        if (config('session.http_only') !== true) {
+            $issues[] = 'SESSION_HTTP_ONLY must be true';
+        }
+
+        if (! str_starts_with((string) config('app.url'), 'https://')) {
+            $issues[] = 'APP_URL must use https';
+        }
+
         return $issues === []
             ? $this->pass('Production configuration guards passed.')
             : $this->fail(implode('; ', $issues).'.');

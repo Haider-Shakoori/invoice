@@ -12,7 +12,18 @@ class ReadinessController extends Controller
     {
         $result = $readiness->inspect();
 
-        return response()->json($result, $result['ready'] ? 200 : 503)
+        $payload = app()->environment('production')
+            ? [
+                'ready' => $result['ready'],
+                'status' => $result['status'],
+                'checked_at' => $result['checked_at'],
+                'checks' => collect($result['checks'])
+                    ->map(fn (array $check) => ['status' => $check['status']])
+                    ->all(),
+            ]
+            : $result;
+
+        return response()->json($payload, $result['ready'] ? 200 : 503)
             ->header('Cache-Control', 'no-store, max-age=0');
     }
 }
