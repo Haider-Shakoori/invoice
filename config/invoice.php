@@ -17,6 +17,10 @@ return [
         'font_family' => env('PDF_FONT_FAMILY', 'Inter, DejaVu Sans, Arial, sans-serif'),
         'rtl_font_family' => env('PDF_RTL_FONT_FAMILY', 'Noto Naskh Arabic, Noto Sans Arabic, DejaVu Sans, Arial, sans-serif'),
     ],
+    'operations' => [
+        'mysqldump_binary' => env('MYSQLDUMP_BINARY'),
+        'backup_timeout_seconds' => (int) env('BACKUP_TIMEOUT_SECONDS', 900),
+    ],
     'locales' => ['en', 'fa', 'ps'],
     'default_locale' => env('APP_LOCALE', 'en'),
     'reserved_subdomains' => [

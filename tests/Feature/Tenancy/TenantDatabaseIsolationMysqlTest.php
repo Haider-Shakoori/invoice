@@ -6,10 +6,14 @@ use App\Actions\Tenancy\ProvisionTenant;
 use App\Actions\Tenancy\ResumeTenantProvisioning;
 use App\Models\Central\AdminUser;
 use App\Models\Central\Business;
+use App\Models\Central\ProvisioningEvent;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Customer;
 use App\Models\Tenant\User;
+use App\Services\Operations\BackupManager;
+use App\Services\Operations\TenantMigrationRunner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -205,6 +209,79 @@ class TenantDatabaseIsolationMysqlTest extends TestCase
             $this->assertTrue(Schema::hasTable('customers'));
             $this->assertFalse(Customer::query()->where('name', 'Alpha Private Client')->exists());
         });
+    }
+
+    public function test_release_migration_runner_supports_dry_run_and_audited_apply(): void
+    {
+        [$tenantA] = $this->provisionPair();
+
+        $runner = app(TenantMigrationRunner::class);
+
+        $dryRun = $runner->run([$tenantA->slug], true);
+
+        $this->assertSame(1, $dryRun['total']);
+        $this->assertSame(1, $dryRun['succeeded']);
+        $this->assertSame(0, $dryRun['failed']);
+        $this->assertSame('dry-run', $dryRun['results'][0]['status']);
+
+        $applied = $runner->run([$tenantA->getTenantKey()]);
+
+        $this->assertSame(1, $applied['total']);
+        $this->assertSame(1, $applied['succeeded']);
+        $this->assertSame(0, $applied['failed']);
+
+        $event = ProvisioningEvent::query()
+            ->where('tenant_id', $tenantA->getTenantKey())
+            ->where('step', 'release_tenant_migration')
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertSame('success', $event->status);
+        $this->assertNotNull($event->finished_at);
+    }
+
+    public function test_release_backup_captures_tenant_database_and_private_files_and_verifies_hashes(): void
+    {
+        [$tenantA] = $this->provisionPair();
+        $root = storage_path('framework/testing/mysql-backup-'.bin2hex(random_bytes(5)));
+
+        $tenantA->run(function (): void {
+            Storage::disk('local')->put('branding/backup-marker.txt', 'tenant-private-marker');
+
+            Customer::query()->create([
+                'name' => 'Backup Customer',
+                'phone' => '0700000099',
+                'is_active' => true,
+            ]);
+        });
+
+        try {
+            $manifest = app(BackupManager::class)->create($root);
+
+            $this->assertFileExists($root.'/manifest.json');
+            $this->assertFileExists($root.'/database/central.sql');
+
+            $tenantEntry = collect($manifest['tenants'])
+                ->firstWhere('id', $tenantA->getTenantKey());
+
+            $this->assertNotNull($tenantEntry);
+
+            $safeTenant = preg_replace('/[^A-Za-z0-9._-]/', '_', (string) $tenantA->getTenantKey());
+
+            $this->assertFileExists($root.'/tenants/'.$safeTenant.'/database.sql');
+            $this->assertFileExists($root.'/tenants/'.$safeTenant.'/files/branding/backup-marker.txt');
+            $this->assertSame(
+                'tenant-private-marker',
+                file_get_contents($root.'/tenants/'.$safeTenant.'/files/branding/backup-marker.txt'),
+            );
+
+            $verified = app(BackupManager::class)->verify($root);
+
+            $this->assertTrue($verified['valid']);
+            $this->assertGreaterThanOrEqual(3, $verified['checked']);
+        } finally {
+            File::deleteDirectory($root);
+        }
     }
 
     /**
