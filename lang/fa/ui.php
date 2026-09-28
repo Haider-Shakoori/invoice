@@ -7,6 +7,7 @@ return [
         'invoices' => 'فاکتورها',
         'clients' => 'مشتریان',
         'templates' => 'قالب‌ها',
+        'company' => 'تنظیمات شرکت',
         'staff' => 'کارمندان',
         'subscription' => 'اشتراک',
         'sign_out' => 'خروج',
