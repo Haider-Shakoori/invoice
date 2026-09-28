@@ -12,6 +12,18 @@ use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
+Route::domain('www.'.config('tenancy.tenant_base_domain'))->group(function (): void {
+    Route::any('/{path?}', function (?string $path = null) {
+        $target = 'https://'.config('tenancy.tenant_base_domain').'/'.ltrim((string) $path, '/');
+
+        if (request()->getQueryString()) {
+            $target .= '?'.request()->getQueryString();
+        }
+
+        return redirect()->away($target, 301);
+    })->where('path', '.*');
+});
+
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->middleware('request.context')->group(function (): void {
         Route::view('/', 'central.landing')->name('central.home');
