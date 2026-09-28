@@ -8,11 +8,12 @@ use App\Models\Central\ActivationRequest;
 use App\Models\Central\Business;
 use App\Services\Commercial\SubscriptionAuditLogger;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ActivationRequestController extends Controller
 {
-    public function store(Request $request, SubscriptionAuditLogger $audit): JsonResponse
+    public function store(Request $request, SubscriptionAuditLogger $audit): JsonResponse|RedirectResponse
     {
         $data = $request->validate([
             'note' => ['nullable', 'string', 'max:2000'],
@@ -25,7 +26,9 @@ class ActivationRequestController extends Controller
         $subscription = $business->subscription()->firstOrFail();
 
         if ($subscription->status === SubscriptionStatus::Active && $subscription->current_period_end?->isFuture()) {
-            return response()->json(['message' => 'The subscription is already active.'], 422);
+            return $request->expectsJson()
+                ? response()->json(['message' => 'The subscription is already active.'], 422)
+                : back()->with('status', 'Your subscription is already active.');
         }
 
         $activationRequest = ActivationRequest::query()->firstOrCreate(
@@ -52,6 +55,12 @@ class ActivationRequestController extends Controller
             );
         }
 
-        return response()->json($activationRequest, $activationRequest->wasRecentlyCreated ? 201 : 200);
+        if ($request->expectsJson()) {
+            return response()->json($activationRequest, $activationRequest->wasRecentlyCreated ? 201 : 200);
+        }
+
+        return back()->with('status', $activationRequest->wasRecentlyCreated
+            ? 'Your activation request has been submitted.'
+            : 'Your activation request is already pending.');
     }
 }
