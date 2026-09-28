@@ -33,15 +33,21 @@ Status: complete and merged.
 See [PHASE2_STATUS.md](PHASE2_STATUS.md).
 
 ## Phase 3 — Tenant Workspace
+Status: implementation complete on the Phase 3 feature branch; awaiting final CI/merge.
+
 - mandatory resumable company onboarding
 - direct landing on Invoices (no analytics dashboard)
-- clients
+- client management
 - invoice draft list/editor
-- safe numbering
-- server calculation engine
-- client/company snapshots
-- staff permissions
-- draft duplicate/delete/version audit
+- concurrency-safe yearly numbering
+- server calculation engine using scaled decimal arithmetic
+- customer/company snapshots
+- staff accounts and server-side permissions
+- draft duplicate/delete/version/activity history
+- low-bandwidth responsive Blade workspace
+- tenant-isolation and draft lifecycle tests
+
+See [PHASE3_STATUS.md](PHASE3_STATUS.md).
 
 ## Phase 4 — Localization & PDF
 - complete English/Dari/Pashto application UI
